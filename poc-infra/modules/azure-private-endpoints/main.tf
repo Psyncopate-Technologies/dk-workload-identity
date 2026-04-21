@@ -7,11 +7,13 @@ resource "azurerm_private_endpoint" "this" {
   subnet_id           = each.value.subnet_id
   tags                = var.tags
 
+  # Alias-based connections require manual approval; the Confluent access-point
+  # connection resource (below) approves it on the Confluent side.
   private_service_connection {
     name                              = "${var.name_prefix}-${each.key}-psc"
-    is_manual_connection              = false
+    is_manual_connection              = true
     private_connection_resource_alias = var.private_link_service_alias
-    subresource_names                 = []
+    request_message                   = "DK workload-identity PoC — auto-approved by Confluent access-point connection"
   }
 }
 
