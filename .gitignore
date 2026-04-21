@@ -5,6 +5,11 @@
 SECRETS.local.md
 **/SECRETS.local.md
 
+# PowerShell workload configs — committed template is the .example file only.
+powershell/config/workloads.*.json
+!powershell/config/workloads.example.json
+powershell/config/workloads.*.appids.json
+
 # Downloaded tool binaries (tools/install.sh repopulates these)
 tools/bin/
 tools/.cache/

@@ -1,0 +1,24 @@
+{
+  "_comment": "Copy this file to workloads.<env>.json, fill in values, and run ./scripts/New-WorkloadApps.ps1 -ConfigPath <path>. workloads.*.json (except this .example) is gitignored.",
+
+  "environment": "dev",
+  "namePrefix": "dk-confluent",
+  "tenantId": "1b9dca15-4db4-4905-8725-d318d11c6875",
+
+  "workloads": {
+    "mergerarb-madam": {
+      "description": "Merger-Arb MADAM workload — dev.",
+      "apiScopeName": "access_as_application",
+      "federatedCredentials": [
+        {
+          "_comment": "Example UAMI federation — only fill in once the UAMI exists. For Azure-native workloads the UAMI can call IMDS directly without this; use federation only for Arc / GitHub Actions / Kubernetes workload-identity scenarios.",
+          "name": "mergerarb-madam-uami-dev",
+          "issuer": "https://login.microsoftonline.com/1b9dca15-4db4-4905-8725-d318d11c6875/v2.0",
+          "subject": "REPLACE_WITH_UAMI_OBJECT_ID",
+          "audiences": ["api://AzureADTokenExchange"],
+          "description": "UAMI used by the MADAM workload in dev."
+        }
+      ]
+    }
+  }
+}
