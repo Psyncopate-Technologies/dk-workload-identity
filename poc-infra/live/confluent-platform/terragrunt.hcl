@@ -17,7 +17,7 @@ inputs = {
   clusters = {
     nonprod = {
       display_name_suffix = "enterprise"
-      availability        = "SINGLE_ZONE"
+      availability        = "HIGH"
     }
     prod = {
       display_name_suffix = "enterprise"
