@@ -1,0 +1,119 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Azure Entra OIDC to Confluent Cloud" id="fL3ADlQoXc6UNKPTft3e">
+    <mxGraphModel dx="2066" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-69" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=30;fontStyle=1;fontColor=#172554;" value="Microsoft Entra ID OIDC Workload Identity with Confluent Cloud" vertex="1">
+          <mxGeometry height="45" width="920" x="700" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-70" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=15;fontColor=#475569;" value="Two clean workload lanes: producer writes to dkp topics, consumer reads from {prefix} topics and&amp;nbsp;&amp;nbsp;{prefix}&amp;nbsp;consumer groups." vertex="1">
+          <mxGeometry height="45" width="830" x="730" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-71" parent="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=8;fillColor=#F0FDF4;strokeColor=#16A34A;strokeWidth=2;fontStyle=1;fontSize=15;fontColor=#14532D;horizontal=1;" value="PRODUCER FLOW" vertex="1">
+          <mxGeometry height="270" width="1940" x="270" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-79" parent="i8fMn0zEKM6AgpjhdAOk-71" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontSize=14;fontColor=#052E16;spacing=14;" value="Java Producer&lt;br&gt;&lt;b&gt;producer-client.properties&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requests Entra token using producer client credentials&lt;br&gt;&lt;br&gt;Sends message to:&lt;br&gt;&lt;font color=&quot;#15803D&quot;&gt;dkp_test&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="320" x="580" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-80" parent="i8fMn0zEKM6AgpjhdAOk-71" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontSize=14;fontColor=#052E16;spacing=14;" value="Producer Identity Pool&lt;br&gt;&lt;b&gt;PRODUCER_IDENTITY_POOL_ID&lt;/b&gt;&lt;br&gt;&lt;br&gt;Identity claim:&lt;br&gt;claims.sub&lt;br&gt;&lt;br&gt;Filter matches producer token claims" vertex="1">
+          <mxGeometry height="160" width="320" x="1160" y="47.5" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-81" parent="i8fMn0zEKM6AgpjhdAOk-71" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontSize=14;fontColor=#3B0764;spacing=10;" value="RBAC&lt;br&gt;&lt;b&gt;DeveloperWrite&lt;/b&gt;&lt;br&gt;Topic prefix:&lt;br&gt;&lt;font color=&quot;#15803D&quot;&gt;dkp&lt;/font&gt;" vertex="1">
+          <mxGeometry height="95" width="190" x="1690" y="47.5" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-82" parent="i8fMn0zEKM6AgpjhdAOk-71" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFFFFF;strokeColor=#16A34A;strokeWidth=2;fontSize=14;fontColor=#052E16;spacing=10;" value="Kafka Topic&lt;br&gt;&lt;b&gt;dkp_test&lt;/b&gt;&lt;br&gt;&lt;br&gt;Produced message lands here" vertex="1">
+          <mxGeometry height="90" width="190" x="1690" y="162.5" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-94" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-71" source="i8fMn0zEKM6AgpjhdAOk-80" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#16A34A;fontColor=#166534;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-81" value="3. filter matches claims">
+          <mxGeometry relative="1" x="-0.1778" y="-12" as="geometry">
+            <mxPoint x="-12" y="13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-95" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-71" source="i8fMn0zEKM6AgpjhdAOk-81" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#16A34A;fontColor=#166534;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-82" value="4. allow write">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-93" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-71" source="i8fMn0zEKM6AgpjhdAOk-79" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#16A34A;fontColor=#166534;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-80" value="2. SASL/OAUTHBEARER &lt;br&gt;+&lt;br&gt;&amp;nbsp;producer pool ID">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-72" parent="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=8;fillColor=#FFF7ED;strokeColor=#EA580C;strokeWidth=2;fontStyle=1;fontSize=15;fontColor=#7C2D12;horizontal=1;" value="CONSUMER FLOW" vertex="1">
+          <mxGeometry height="270" width="1940" x="270" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-84" parent="i8fMn0zEKM6AgpjhdAOk-72" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFEDD5;strokeColor=#EA580C;strokeWidth=2;fontSize=14;fontColor=#431407;spacing=14;" value="Java Consumer&lt;br&gt;&lt;b&gt;consumer-client.properties&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requests Entra token using consumer client credentials&lt;br&gt;&lt;br&gt;Reads topic/group:&lt;br&gt;&lt;font color=&quot;#EA580C&quot;&gt;dkp_test / dkp-java-group-1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="320" x="580" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-85" parent="i8fMn0zEKM6AgpjhdAOk-72" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFEDD5;strokeColor=#EA580C;strokeWidth=2;fontSize=14;fontColor=#431407;spacing=14;" value="Consumer Identity Pool&lt;br&gt;&lt;b&gt;CONSUMER_IDENTITY_POOL_ID&lt;/b&gt;&lt;br&gt;&lt;br&gt;Identity claim:&lt;br&gt;claims.sub&lt;br&gt;&lt;br&gt;Filter matches consumer token claims" vertex="1">
+          <mxGeometry height="160" width="320" x="1160" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-86" parent="i8fMn0zEKM6AgpjhdAOk-72" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontSize=14;fontColor=#3B0764;spacing=10;" value="RBAC&lt;br&gt;&lt;b&gt;DeveloperRead&lt;/b&gt;&lt;br&gt;Topic prefix:&lt;br&gt;&lt;font color=&quot;#EA580C&quot;&gt;dkp&lt;/font&gt;&lt;br&gt;Group prefix:&lt;br&gt;&lt;font color=&quot;#EA580C&quot;&gt;dkp&lt;/font&gt;" vertex="1">
+          <mxGeometry height="115" width="190" x="1690" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-87" parent="i8fMn0zEKM6AgpjhdAOk-72" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFFFFF;strokeColor=#EA580C;strokeWidth=2;fontSize=14;fontColor=#431407;spacing=10;" value="Kafka Consume Target&lt;br&gt;&lt;b&gt;Topic: dkp_test&lt;/b&gt;&lt;br&gt;&lt;b&gt;Group: dkp-java-group-1&lt;/b&gt;&lt;br&gt;&lt;br&gt;Both need authorization" vertex="1">
+          <mxGeometry height="90" width="190" x="1690" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-97" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-72" source="i8fMn0zEKM6AgpjhdAOk-84" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#EA580C;fontColor=#9A3412;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-85" value="2. SASL/OAUTHBEARER + &lt;br&gt;consumer pool ID">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-98" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-72" source="i8fMn0zEKM6AgpjhdAOk-85" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#EA580C;fontColor=#9A3412;fontSize=13;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="i8fMn0zEKM6AgpjhdAOk-86" value="3. filter matches claims">
+          <mxGeometry relative="1" x="-0.1685" y="-15" as="geometry">
+            <mxPoint x="-15" y="15" as="offset" />
+            <mxPoint x="1575" y="135" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-99" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-72" source="i8fMn0zEKM6AgpjhdAOk-86" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#EA580C;fontColor=#9A3412;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-87" value="4. allow read">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-73" parent="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=8;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=2;fontStyle=1;fontSize=15;fontColor=#334155;horizontal=1;" value="SHARED SETUP AND TOKEN VALIDATION" vertex="1">
+          <mxGeometry height="240" width="1940" x="270" y="1220" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-88" parent="i8fMn0zEKM6AgpjhdAOk-73" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=2;fontSize=14;fontColor=#0C4A6E;spacing=14;" value="Resource / API App Registration&lt;br&gt;&lt;b&gt;Existing OIDC app&lt;/b&gt;&lt;br&gt;&lt;br&gt;Application ID URI:&lt;br&gt;&lt;font color=&quot;#0369A1&quot;&gt;api://&amp;lt;RESOURCE_APP_CLIENT_ID&amp;gt;&lt;/font&gt;&lt;br&gt;&lt;br&gt;Defines app roles:&lt;br&gt;Kafka.Produce, Kafka.Consume" vertex="1">
+          <mxGeometry height="150" width="320" x="20" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-89" parent="i8fMn0zEKM6AgpjhdAOk-73" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=2;fontSize=14;fontColor=#172554;spacing=14;" value="Microsoft Entra Token Endpoint&lt;br&gt;&lt;b&gt;/oauth2/v2.0/token&lt;/b&gt;&lt;br&gt;&lt;br&gt;grant_type=client_credentials&lt;br&gt;scope=api://resource/.default&lt;br&gt;&lt;br&gt;Returns short-lived JWT access token" vertex="1">
+          <mxGeometry height="150" width="320" x="550" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-100" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-73" source="i8fMn0zEKM6AgpjhdAOk-88" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;strokeColor=#2563EB;fontColor=#1D4ED8;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-89" value="defines audience and roles">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-91" parent="i8fMn0zEKM6AgpjhdAOk-73" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=2;fontSize=14;fontColor=#334155;spacing=14;" value="Claims To Check In jwt.ms&lt;br&gt;&lt;br&gt;iss = Entra v2 issuer&lt;br&gt;aud = resource/API app&lt;br&gt;sub = workload subject&lt;br&gt;appid or azp = client app ID&lt;br&gt;roles = Kafka.Produce / Kafka.Consume" vertex="1">
+          <mxGeometry height="150" width="230" x="1680" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-90" parent="i8fMn0zEKM6AgpjhdAOk-73" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EDE9FE;strokeColor=#7C3AED;strokeWidth=2;fontSize=14;fontColor=#3B0764;spacing=14;" value="Confluent OAuth/OIDC Provider&lt;br&gt;&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;&lt;br&gt;Validates:&lt;br&gt;issuer, signature, JWKS&lt;br&gt;&lt;br&gt;Then evaluates identity pool filter" vertex="1">
+          <mxGeometry height="150" width="320" x="1160" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-101" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-73" source="i8fMn0zEKM6AgpjhdAOk-89" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;strokeColor=#7C3AED;fontColor=#5B21B6;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-90" value="JWT issuer and JWKS">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-102" edge="1" parent="i8fMn0zEKM6AgpjhdAOk-73" source="i8fMn0zEKM6AgpjhdAOk-90" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;strokeColor=#64748B;fontColor=#475569;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-91" value="pool filters use these claims">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-74" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=16;fontStyle=1;fontColor=#075985;" value="Azure / Microsoft Entra ID" vertex="1">
+          <mxGeometry height="24" width="360" x="280" y="476" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-75" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=16;fontStyle=1;fontColor=#78350F;" value="Java Client" vertex="1">
+          <mxGeometry height="24" width="360" x="830" y="476" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-76" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=16;fontStyle=1;fontColor=#4C1D95;" value="Confluent Identity Pool" vertex="1">
+          <mxGeometry height="24" width="360" x="1390" y="476" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-77" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=16;fontStyle=1;fontColor=#4C1D95;" value="Confluent RBAC and Kafka" vertex="1">
+          <mxGeometry height="24" width="250" x="1930" y="476" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-78" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontSize=14;fontColor=#052E16;spacing=14;" value="Producer Client App Registration&lt;br&gt;&lt;b&gt;confluent-producer-client&lt;/b&gt;&lt;br&gt;&lt;br&gt;Values used by Java:&lt;br&gt;PRODUCER_CLIENT_ID&lt;br&gt;PRODUCER_CLIENT_SECRET&lt;br&gt;&lt;br&gt;API permission:&lt;br&gt;&lt;font color=&quot;#15803D&quot;&gt;Kafka.Produce&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="320" x="320" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-83" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFEDD5;strokeColor=#EA580C;strokeWidth=2;fontSize=14;fontColor=#431407;spacing=14;" value="Consumer Client App Registration&lt;br&gt;&lt;b&gt;confluent-consumer-client&lt;/b&gt;&lt;br&gt;&lt;br&gt;Values used by Java:&lt;br&gt;CONSUMER_CLIENT_ID&lt;br&gt;CONSUMER_CLIENT_SECRET&lt;br&gt;&lt;br&gt;API permission:&lt;br&gt;&lt;font color=&quot;#EA580C&quot;&gt;Kafka.Consume&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="320" x="320" y="905" as="geometry" />
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-92" edge="1" parent="1" source="i8fMn0zEKM6AgpjhdAOk-78" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#16A34A;fontColor=#166534;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-79" value="1. client credentials flow &lt;br&gt;returns producer JWT">
+          <mxGeometry relative="1" x="-0.0769" y="-35" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="i8fMn0zEKM6AgpjhdAOk-96" edge="1" parent="1" source="i8fMn0zEKM6AgpjhdAOk-83" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=3;strokeColor=#EA580C;fontColor=#9A3412;fontSize=13;" target="i8fMn0zEKM6AgpjhdAOk-84" value="1. client credentials flow &lt;br&gt;returns consumer JWT">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

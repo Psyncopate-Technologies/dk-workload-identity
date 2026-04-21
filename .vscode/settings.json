@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "terragrunt.hcl": "hcl",
+    "*.hcl": "hcl"
+  }
+}
