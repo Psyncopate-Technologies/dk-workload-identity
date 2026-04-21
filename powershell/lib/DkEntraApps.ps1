@@ -17,7 +17,7 @@ function Assert-MgGraphConnected {
         throw "Not connected to Microsoft Graph. Run: Connect-MgGraph -TenantId <tenant-id> -Scopes '$($RequiredScopes -join ''', ''')'"
     }
 
-    $missing = $RequiredScopes | Where-Object { $_ -notin $ctx.Scopes }
+    $missing = @($RequiredScopes | Where-Object { $_ -notin $ctx.Scopes })
     if ($missing.Count -gt 0) {
         throw "Connected Graph session is missing scopes: $($missing -join ', '). Reconnect with -Scopes including these."
     }
@@ -41,11 +41,12 @@ function Find-WorkloadApp {
     )
 
     # Filter-by-displayName returns a list; take the first match and warn if > 1.
-    $apps = Get-MgApplication -Filter "displayName eq '$DisplayName'" -All
+    $apps = @(Get-MgApplication -Filter "displayName eq '$DisplayName'" -All)
     if ($apps.Count -gt 1) {
         Write-Warning "Multiple applications found with displayName '$DisplayName' — using the first ($($apps[0].Id))."
     }
-    $apps | Select-Object -First 1
+    if ($apps.Count -eq 0) { return $null }
+    $apps[0]
 }
 
 function New-WorkloadApp {
