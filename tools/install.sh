@@ -63,7 +63,8 @@ install_confluent_cli() {
   fi
   local tgz="${CACHE_DIR}/confluent_${want}_${OS}_${ARCH}.tar.gz"
   curl -fsSL -o "${tgz}" \
-    "https://packages.confluent.io/confluent-cli/archives/${want}/confluent_${want}_${OS}_${ARCH}.tar.gz"
+    "https://github.com/confluentinc/cli/releases/download/v${want}/confluent_${want}_${OS}_${ARCH}.tar.gz"
+  rm -rf "${CACHE_DIR}/confluent"
   tar -xzf "${tgz}" -C "${CACHE_DIR}"
   cp "${CACHE_DIR}/confluent/confluent" "${BIN_DIR}/confluent"
   chmod +x "${BIN_DIR}/confluent"
