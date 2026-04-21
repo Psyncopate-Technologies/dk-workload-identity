@@ -29,7 +29,7 @@ inputs = {
   # dk-confluent-dev-<key> (e.g. dk-confluent-dev-mergerarb-madam).
   workloads = {
     "mergerarb-madam" = {
-      app_client_id           = "9dfb2b95-628d-4662-a8cd-88965d278cd9"
+      app_client_id           = "72a90c20-05d4-40c1-bc9c-b74b12b2ab3b"
       description             = "Merger-Arb MADAM workload — dev."
       write_topic_prefixes    = ["mergerarb.madam."]
       read_topic_prefixes     = ["mergerarb.madam."]
