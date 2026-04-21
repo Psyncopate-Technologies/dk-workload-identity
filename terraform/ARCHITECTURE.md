@@ -1,6 +1,14 @@
 # Architecture — What this Terraform code does
 
-A reference for future-you (or whoever inherits this). Describes the module's scope, the 6 resources it creates, the end-to-end request flow, and the two identity paths the design supports.
+A reference for future-you (or whoever inherits this). Describes the module's
+scope, the resources it creates, the end-to-end request flow, and the two
+identity paths the design supports.
+
+> **Note on naming:** this doc originally described a fixed `producer` / `consumer`
+> pool split. The current code uses a generic `workloads` map (see `README.md`) —
+> one pool per workload, each with its own set of role bindings. The request
+> flow and identity paths below are unchanged; only the pool/role-binding count
+> is now a function of how many workloads you declare.
 
 ---
 

@@ -1,0 +1,20 @@
+# Org-level Confluent Cloud identity provider — one per Entra tenant, shared across all envs.
+#
+# NOTE: DKP already has their own identity_provider wired up in their Confluent org.
+# This stack is for Ayele's PoC dev org only. It still ships to DK as reference code,
+# but DK will skip applying _org and instead pass their existing provider ID as a
+# Terragrunt input override on the per-env stacks.
+
+include "root" {
+  path = find_in_parent_folders("root.hcl")
+}
+
+terraform {
+  source = "../../modules/confluent-identity-provider"
+}
+
+inputs = {
+  display_name    = "DK Entra ID - PoC"
+  description     = "Microsoft Entra ID OIDC provider for the DK workload-identity PoC."
+  entra_tenant_id = "1b9dca15-4db4-4905-8725-d318d11c6875"
+}

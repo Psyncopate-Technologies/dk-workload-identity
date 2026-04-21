@@ -1,14 +1,17 @@
-name: terraform
+name: terraform-poc-infra
+
+# Deploys the PoC-only Azure + Confluent Cloud infrastructure (poc-infra/).
+# NOT shipped to DK. Keeps a separate trigger/audit trail from the DK workflow.
 
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Target environment (one of: dev, uat, prod)"
+      stack:
+        description: "Stack under poc-infra/live/"
         type: choice
         required: true
-        options: [dev, uat, prod]
-        default: dev
+        options: [azure-network, confluent-platform, azure-private-endpoints]
+        default: azure-network
       action:
         description: "Terragrunt action"
         type: choice
@@ -17,44 +20,46 @@ on:
         default: plan
   pull_request:
     paths:
-      - "terraform/**"
+      - "poc-infra/**"
       - "tools/**"
-      - ".github/workflows/terraform.yml"
+      - ".github/workflows/terraform-poc-infra.yml"
 
 permissions:
   contents: read
+  id-token: write  # needed for azure/login OIDC
 
 jobs:
   terragrunt:
     runs-on: ubuntu-latest
-    # PRs always plan against dev; workflow_dispatch uses the chosen env.
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
+    environment: poc
     env:
       TF_VAR_confluent_cloud_api_key: ${{ secrets.CONFLUENT_CLOUD_API_KEY }}
       TF_VAR_confluent_cloud_api_secret: ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
-      TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
+      TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      TARGET_STACK: ${{ github.event_name == 'workflow_dispatch' && inputs.stack || 'azure-network' }}
       TG_ACTION: ${{ github.event_name == 'workflow_dispatch' && inputs.action || 'plan' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Install pinned tools
         run: |
           ./tools/install.sh
           echo "${GITHUB_WORKSPACE}/tools/bin" >> "${GITHUB_PATH}"
 
-      - name: Version check
-        run: |
-          terraform -version
-          terragrunt -version
-          confluent version
-          python3.12 --version
-
       - name: Terragrunt init
-        working-directory: terraform/live/${{ env.TARGET_ENV }}
+        working-directory: poc-infra/live/${{ env.TARGET_STACK }}
         run: terragrunt init -input=false
 
       - name: Terragrunt ${{ env.TG_ACTION }}
-        working-directory: terraform/live/${{ env.TARGET_ENV }}
+        working-directory: poc-infra/live/${{ env.TARGET_STACK }}
         run: |
           case "${TG_ACTION}" in
             plan)    terragrunt plan -input=false ;;

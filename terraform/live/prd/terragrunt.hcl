@@ -16,17 +16,17 @@ dependency "provider" {
 }
 
 inputs = {
-  environment_name          = "uat"
+  environment_name          = "prd"
   identity_provider_id      = dependency.provider.outputs.identity_provider_id
-  entra_tenant_id           = "REPLACE_WITH_UAT_TENANT_ID"
-  confluent_organization_id = "0369af3f-d68c-44de-97cb-52a50017dc59"
-  confluent_environment_id  = "REPLACE_WITH_UAT_CONFLUENT_ENV_ID"
-  kafka_cluster_id          = "REPLACE_WITH_UAT_KAFKA_CLUSTER_ID"
+  entra_tenant_id           = "REPLACE_WITH_PRD_TENANT_ID"
+  confluent_organization_id = "REPLACE_WITH_PRD_ORG_ID_IF_DIFFERENT"
+  confluent_environment_id  = "REPLACE_WITH_PRD_CONFLUENT_ENV_ID"
+  kafka_cluster_id          = "REPLACE_WITH_PRD_KAFKA_CLUSTER_ID"
 
   workloads = {
     "mergerarb-madam" = {
-      app_client_id           = "REPLACE_WITH_UAT_MERGERARB_MADAM_APP_CLIENT_ID"
-      description             = "Merger-Arb MADAM workload — uat."
+      app_client_id           = "REPLACE_WITH_PRD_MERGERARB_MADAM_APP_CLIENT_ID"
+      description             = "Merger-Arb MADAM workload — prd."
       write_topic_prefixes    = ["mergerarb.madam."]
       read_topic_prefixes     = ["mergerarb.madam."]
       consumer_group_prefixes = ["mergerarb-madam-"]
