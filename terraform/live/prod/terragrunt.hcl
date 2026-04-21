@@ -12,10 +12,8 @@ inputs = {
   confluent_environment_id  = "REPLACE_WITH_PROD_CONFLUENT_ENV_ID"
   kafka_cluster_id          = "REPLACE_WITH_PROD_KAFKA_CLUSTER_ID"
 
-  # Microsoft Entra ID — prod tenant
+  # Microsoft Entra ID — prod tenant (issuer/JWKS derived from tenant_id in the module)
   entra_tenant_id = "REPLACE_WITH_PROD_TENANT_ID"
-  entra_issuer    = "https://login.microsoftonline.com/REPLACE_WITH_PROD_TENANT_ID/v2.0"
-  entra_jwks_uri  = "https://login.microsoftonline.com/REPLACE_WITH_PROD_TENANT_ID/discovery/v2.0/keys"
 
   producer_app_client_id = "REPLACE_WITH_PROD_PRODUCER_APP_CLIENT_ID"
   consumer_app_client_id = "REPLACE_WITH_PROD_CONSUMER_APP_CLIENT_ID"

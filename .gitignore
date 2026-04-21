@@ -1,0 +1,31 @@
+# Secrets — never commit
+.env
+.envrc
+*.env.local
+SECRETS.local.md
+**/SECRETS.local.md
+
+# Downloaded tool binaries (tools/install.sh repopulates these)
+tools/bin/
+tools/.cache/
+tools/.python/
+
+# Terraform / Terragrunt
+**/.terraform/
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfstate.d/
+**/.terragrunt-cache/
+**/terragrunt-debug.tfvars.json
+**/provider.tf
+**/backend.tf
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+
+# OS / editor
+.DS_Store
+.idea/
+*.swp

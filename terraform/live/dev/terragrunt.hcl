@@ -12,10 +12,8 @@ inputs = {
   confluent_environment_id  = "env-1y1176"
   kafka_cluster_id          = "lkc-x9qrwg"
 
-  # Microsoft Entra ID — dev tenant
+  # Microsoft Entra ID — dev tenant (issuer/JWKS derived from tenant_id in the module)
   entra_tenant_id = "1b9dca15-4db4-4905-8725-d318d11c6875"
-  entra_issuer    = "https://login.microsoftonline.com/1b9dca15-4db4-4905-8725-d318d11c6875/v2.0"
-  entra_jwks_uri  = "https://login.microsoftonline.com/1b9dca15-4db4-4905-8725-d318d11c6875/discovery/v2.0/keys"
 
   # App registration (client) IDs — one per workload, used to build api://<id> audience
   producer_app_client_id = "9dfb2b95-628d-4662-a8cd-88965d278cd9"

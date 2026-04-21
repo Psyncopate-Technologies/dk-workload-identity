@@ -23,31 +23,33 @@ terraform/
 
 ## Versions
 
-- Terraform `~> 1.9`
-- Terragrunt `~> 0.66`
-- `confluentinc/confluent` provider `~> 2.10`
+Pinned in [`tools/versions.env`](../tools/versions.env). Run `./tools/install.sh`
+from the repo root and `source ./tools/env.sh` before any terragrunt command.
+
+- Terraform, Terragrunt, Confluent CLI, Python 3.12 — all managed by `tools/`
+- `confluentinc/confluent` provider `~> 2.10` (pinned in `modules/confluent-oidc/versions.tf`)
 
 ## Prerequisites
 
 1. **Confluent Cloud Cloud API key** with the `OrganizationAdmin` role (needed to create identity providers, identity pools, and role bindings). Create via Confluent Cloud Console → *Administration → API keys → Cloud resource management*.
 2. For each environment, have these Entra facts ready:
-   - Tenant ID
-   - Issuer URL (typically `https://login.microsoftonline.com/<tenant_id>/v2.0`)
-   - JWKS URI (typically `https://login.microsoftonline.com/<tenant_id>/discovery/v2.0/keys`)
+   - Tenant ID (issuer URL and JWKS URI are derived from it inside the module)
    - Producer app registration **client ID**
    - Consumer app registration **client ID**
 3. The Confluent Environment ID (`env-*`) and Kafka Cluster ID (`lkc-*`) already exist.
 
 ## Secrets — how they're passed in
 
-The Confluent Cloud API key/secret is **not committed**. Terraform reads it from environment variables using the built-in `TF_VAR_<name>` convention.
+The Confluent Cloud API key/secret is **not committed**. Copy `.env.example` to
+`.env` at the repo root, fill in the values, and source it before running terragrunt:
 
 ```bash
-export TF_VAR_confluent_cloud_api_key="CKXXXXXXXXXXXXXX"
-export TF_VAR_confluent_cloud_api_secret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+set -a; source ../../.env; set +a   # from terraform/live/<env>/
 ```
 
-Those env vars get picked up as `var.confluent_cloud_api_key` / `var.confluent_cloud_api_secret` inside the generated `provider.tf`. They must be set in the shell each time you run Terragrunt (or put them in a gitignored `.envrc` used with `direnv`).
+The `.env` file is gitignored. For CI, the same values live in GitHub repo
+secrets (`CONFLUENT_CLOUD_API_KEY`, `CONFLUENT_CLOUD_API_SECRET`) and are wired
+into `TF_VAR_*` by `.github/workflows/terraform.yml`.
 
 Everything else (tenant IDs, cluster IDs, app-client IDs) lives in the per-env `terragrunt.hcl` files — replace the `REPLACE_WITH_*` placeholders before running.
 

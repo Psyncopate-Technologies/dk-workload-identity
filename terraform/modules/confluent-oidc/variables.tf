@@ -24,13 +24,15 @@ variable "entra_tenant_id" {
 }
 
 variable "entra_issuer" {
-  description = "Entra OIDC issuer URL, e.g. https://login.microsoftonline.com/<tenant_id>/v2.0"
+  description = "Entra OIDC issuer URL. Defaults to https://login.microsoftonline.com/<tenant_id>/v2.0 when null."
   type        = string
+  default     = null
 }
 
 variable "entra_jwks_uri" {
-  description = "Entra JWKS endpoint, e.g. https://login.microsoftonline.com/<tenant_id>/discovery/v2.0/keys"
+  description = "Entra JWKS endpoint. Defaults to https://login.microsoftonline.com/<tenant_id>/discovery/v2.0/keys when null."
   type        = string
+  default     = null
 }
 
 variable "producer_app_client_id" {

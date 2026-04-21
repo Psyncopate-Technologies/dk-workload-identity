@@ -2,14 +2,17 @@ locals {
   producer_aud = "api://${var.producer_app_client_id}"
   consumer_aud = "api://${var.consumer_app_client_id}"
 
+  entra_issuer   = coalesce(var.entra_issuer, "https://login.microsoftonline.com/${var.entra_tenant_id}/v2.0")
+  entra_jwks_uri = coalesce(var.entra_jwks_uri, "https://login.microsoftonline.com/${var.entra_tenant_id}/discovery/v2.0/keys")
+
   kafka_rb_crn_prefix = "crn://confluent.cloud/organization=${var.confluent_organization_id}/environment=${var.confluent_environment_id}/cloud-cluster=${var.kafka_cluster_id}/kafka=${var.kafka_cluster_id}"
 }
 
 resource "confluent_identity_provider" "entra" {
   display_name = "entra-${var.environment_name}"
   description  = "Microsoft Entra ID OIDC provider (${var.environment_name})"
-  issuer       = var.entra_issuer
-  jwks_uri     = var.entra_jwks_uri
+  issuer       = local.entra_issuer
+  jwks_uri     = local.entra_jwks_uri
 }
 
 resource "confluent_identity_pool" "producer" {
