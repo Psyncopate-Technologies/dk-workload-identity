@@ -15,21 +15,16 @@ dependency "provider" {
   mock_outputs_allowed_terraform_commands = ["plan", "validate"]
 }
 
+locals {
+  config = jsondecode(file("${get_terragrunt_dir()}/workloads.json"))
+}
+
 inputs = {
   environment_name          = "prd"
   identity_provider_id      = dependency.provider.outputs.identity_provider_id
-  entra_tenant_id           = "REPLACE_WITH_PRD_TENANT_ID"
-  confluent_organization_id = "REPLACE_WITH_PRD_ORG_ID_IF_DIFFERENT"
-  confluent_environment_id  = "REPLACE_WITH_PRD_CONFLUENT_ENV_ID"
-  kafka_cluster_id          = "REPLACE_WITH_PRD_KAFKA_CLUSTER_ID"
-
-  workloads = {
-    "mergerarb-madam" = {
-      app_client_id           = "REPLACE_WITH_PRD_MERGERARB_MADAM_APP_CLIENT_ID"
-      description             = "Merger-Arb MADAM workload — prd."
-      write_topic_prefixes    = ["mergerarb.madam."]
-      read_topic_prefixes     = ["mergerarb.madam."]
-      consumer_group_prefixes = ["mergerarb-madam-"]
-    }
-  }
+  entra_tenant_id           = local.config.entra_tenant_id
+  confluent_organization_id = local.config.confluent_organization_id
+  confluent_environment_id  = local.config.confluent_environment_id
+  kafka_cluster_id          = local.config.kafka_cluster_id
+  workloads                 = local.config.workloads
 }

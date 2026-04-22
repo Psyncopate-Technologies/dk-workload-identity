@@ -10,32 +10,24 @@ terraform {
 dependency "provider" {
   config_path = "../_org"
 
-  # Allow `terragrunt plan` to render before _org has been applied.
   mock_outputs = {
     identity_provider_id = "op-mock00"
   }
   mock_outputs_allowed_terraform_commands = ["plan", "validate"]
 }
 
+# Workloads + topic/group access lists live in workloads.json next to this file.
+# DKP edits workloads.json without touching HCL.
+locals {
+  config = jsondecode(file("${get_terragrunt_dir()}/workloads.json"))
+}
+
 inputs = {
   environment_name          = "dev"
   identity_provider_id      = dependency.provider.outputs.identity_provider_id
-  entra_tenant_id           = "1b9dca15-4db4-4905-8725-d318d11c6875"
-  confluent_organization_id = "9783d48b-0991-4970-86c6-f853940e56d3"
-  # POC env + nonprod Enterprise cluster (dev maps to nonprod per project convention).
-  confluent_environment_id  = "env-g5m78m"
-  kafka_cluster_id          = "lkc-1gjowz"
-
-  # One pool per workload. Key is {domain}-{workload} — produces pool name
-  # dk-confluent-dev-<key> (e.g. dk-confluent-dev-mergerarb-madam).
-  workloads = {
-    "mergerarb-madam" = {
-      app_client_id           = "72a90c20-05d4-40c1-bc9c-b74b12b2ab3b"
-      description             = "Merger-Arb MADAM workload — dev."
-      write_topic_prefixes    = ["mergerarb.madam."]
-      read_topic_prefixes     = ["mergerarb.madam."]
-      consumer_group_prefixes = ["mergerarb-madam-"]
-      manage_topic_prefixes   = ["mergerarb.madam."]
-    }
-  }
+  entra_tenant_id           = local.config.entra_tenant_id
+  confluent_organization_id = local.config.confluent_organization_id
+  confluent_environment_id  = local.config.confluent_environment_id
+  kafka_cluster_id          = local.config.kafka_cluster_id
+  workloads                 = local.config.workloads
 }

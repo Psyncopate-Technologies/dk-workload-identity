@@ -1,103 +1,96 @@
-# Confluent Cloud × Microsoft Entra ID OIDC — Terraform / Terragrunt
+# terraform/ — Confluent Cloud workload identity (Terragrunt)
 
-This is the **code we ship to DK**. It provisions the Confluent-Cloud side of
-the workload-identity OIDC flow:
+Provisions the Confluent-Cloud side of DKP's workload identity:
 
-- 1 org-level `confluent_identity_provider` pointed at the Entra tenant (PoC only — DK already has their own)
-- 1 `confluent_identity_pool` per workload in each env (`dk-confluent-{env}-{domain}-{workload}`)
-- Per-workload `confluent_role_binding`s (DeveloperWrite / DeveloperRead on topic + group prefixes)
+- **One organization-level identity provider** (`op-*`) pointed at the DKP Entra tenant — created by `live/_org/`.
+- **Per-env stacks** (`live/dev`, `live/uat`, `live/prd`) each reading a local `workloads.json`:
+  - One `confluent_identity_pool` per workload (filtered on Entra `claims.tid` + `claims.aud`).
+  - Role bindings per workload: DeveloperWrite / DeveloperRead / DeveloperManage on topic prefixes or exact topic names; DeveloperRead on consumer-group prefixes or names.
 
-The **Entra** side (app registrations, Expose-an-API scope, federated credentials)
-is created by the PowerShell scripts under `../powershell/` (separate deliverable).
+The **Entra side** (app registrations, Expose-an-API scope, token v2, optional federated credentials) is handled by `../powershell/` or the manual portal runbook under `../docs/`.
 
 ## Layout
 
 ```
 terraform/
 ├── modules/
-│   ├── confluent-identity-provider/   # org-level — one per Entra tenant
-│   └── confluent-workload-pools/      # per-env — pools + role bindings for a map of workloads
+│   ├── confluent-identity-provider/   # one resource — the OIDC trust anchor (org-scoped)
+│   └── confluent-workload-pools/      # pools + role bindings for a map of workloads
 └── live/
-    ├── root.hcl                       # provider + (local, for now) state backend
-    ├── _org/terragrunt.hcl            # creates the identity provider (PoC only — DK already has theirs)
-    ├── dev/terragrunt.hcl
-    ├── uat/terragrunt.hcl
-    └── prd/terragrunt.hcl
+    ├── root.hcl                       # Azure Storage remote state + provider config
+    ├── _org/                          # creates the identity provider (skip if DKP already has one)
+    ├── dev/ (terragrunt.hcl + workloads.json)
+    ├── uat/ (terragrunt.hcl + workloads.json)
+    └── prd/ (terragrunt.hcl + workloads.json)
 ```
 
-Per-env stacks take `identity_provider_id` as a Terragrunt `dependency` on the
-`_org` stack. When DK runs this in their own org, they skip `_org` and override
-`identity_provider_id` with their existing provider's ID.
+## workloads.json shape
 
-## Naming convention
-
-All pool display names follow:
-
+```json
+{
+  "entra_tenant_id":           "...",
+  "confluent_organization_id": "...",
+  "confluent_environment_id":  "env-xxxxxx",
+  "kafka_cluster_id":          "lkc-xxxxxx",
+  "workloads": {
+    "<domain>-<workload>": {
+      "description":             "...",
+      "app_client_id":           "<Entra Application (client) ID>",
+      "write_topic_prefixes":    ["dev.transaction.oms."],
+      "write_topic_names":       ["dev.deal.calc.mergerarb.json"],
+      "read_topic_prefixes":     ["dev.deal."],
+      "read_topic_names":        [],
+      "manage_topic_prefixes":   [],
+      "manage_topic_names":      [],
+      "consumer_group_prefixes": ["dk-confluent-dev-position-reader-"],
+      "consumer_group_names":    []
+    }
+  }
+}
 ```
-dk-confluent-{env}-{domain}-{workload}
-```
 
-`{env}` is the stack directory (`dev`, `uat`, `prd`). `{domain}-{workload}` is
-the key in the `workloads` map. Example: `mergerarb-madam` in `dev` →
-`dk-confluent-dev-mergerarb-madam`.
+Fields:
+- `*_prefixes` — matched with trailing `*` (CRN `topic=<prefix>*`).
+- `*_names`    — matched exactly (CRN `topic=<name>`).
+- Any list defaults to empty; omit fields that don't apply.
+- `app_client_id` is the Entra Application (client) ID (GUID) — not the `api://…` URI. v2 tokens emit the bare GUID as the `aud` claim, which is what the pool filter expects.
 
 ## Versions
 
-Pinned in [`../tools/versions.env`](../tools/versions.env). Run `./tools/install.sh`
-from the repo root and `source ./tools/env.sh` before any terragrunt command.
+Pinned in [`../tools/versions.env`](../tools/versions.env). Run `./tools/install.sh` from the repo root and `source ./tools/env.sh` before any terragrunt command.
 
 ## Prerequisites
 
-1. **Confluent Cloud API key** with `OrganizationAdmin` role. Exported via `TF_VAR_confluent_cloud_api_key` / `TF_VAR_confluent_cloud_api_secret`.
-2. Per env, have these ready:
-   - Entra tenant ID (issuer + JWKS derived from it)
-   - Confluent environment ID (`env-*`) and Kafka cluster ID (`lkc-*`)
-   - One Entra app registration per workload (the `app_client_id` in the `workloads` map)
+1. **Confluent Cloud API key** with `OrganizationAdmin` role.
+   Exported as `TF_VAR_confluent_cloud_api_key` / `TF_VAR_confluent_cloud_api_secret`.
+2. Per env: finalized `workloads.json` (replace every `REPLACE_WITH_…` placeholder).
+3. Azure auth in the shell running terragrunt (for the remote state backend) — either `az login` locally or OIDC federated credential in CI.
 
-## Secrets
-
-Copy `.env.example` at the repo root to `.env`, fill in, and source before running:
+## Apply order
 
 ```bash
-set -a; source ../../.env; set +a   # from terraform/live/<env>/
+set -a; source ../../.env; set +a      # from terraform/live/<env>/
+
+cd terraform/live/_org && terragrunt apply   # once per tenant
+cd ../dev              && terragrunt apply
+cd ../uat              && terragrunt apply
+cd ../prd              && terragrunt apply
 ```
 
-`.env` is gitignored. CI reads the same values from GitHub repo secrets.
+Per-env stacks depend on `_org` via a Terragrunt `dependency` block; they pull the `identity_provider_id` from `_org`'s output.
 
-## Running locally
+If DKP already has the identity provider, skip `_org` and override `identity_provider_id` via a terragrunt input or a small edit to the per-env `dependency` block.
 
-```bash
-cd terraform/live/_org       # first — creates the identity provider
-terragrunt apply
-
-cd ../dev                    # then — per-env pools
-terragrunt apply
-terragrunt output            # pool IDs + display names for client SASL config
-```
-
-State is local for now (`terraform/live/<stack>/terraform.tfstate`). Moving to
-Azure Storage before we apply via GitHub Actions at scale — see CLAUDE.md.
-
-## Running in CI
-
-Workflow: `.github/workflows/terraform-workload.yml` (`workflow_dispatch`).
-Pick the env and action (`plan` / `apply` / `destroy`). Requires GitHub secrets
-`CONFLUENT_CLOUD_API_KEY` and `CONFLUENT_CLOUD_API_SECRET`.
-
-## Outputs
-
-Per env stack:
+## Outputs per env stack
 
 | Output | Use |
 |---|---|
-| `identity_pool_ids` | `{ workload_key -> pool-* }` — plug into client SASL (`extension_identityPoolId`) |
-| `identity_pool_names` | `{ workload_key -> dk-confluent-<env>-<key> }` — cross-check in Console |
-| `identity_pool_filters` | `{ workload_key -> filter expr }` — debug with a decoded JWT at jwt.ms |
+| `identity_pool_ids`     | `{ workload_key → pool-* }` — plug into client SASL `extension_identityPoolId` |
+| `identity_pool_names`   | `{ workload_key → dk-confluent-<env>-<key> }` — cross-check in Console |
+| `identity_pool_filters` | `{ workload_key → filter expression }` — debug with a decoded JWT at jwt.ms |
 
 ## Handing off to DK
 
-What DK runs on their side:
-
-1. PowerShell scripts (under `../powershell/`) — create Entra app registrations.
-2. `terraform/live/<env>/terragrunt.hcl` with their own values + their existing `identity_provider_id`.
-3. They skip `_org/` (their identity provider is already wired up).
+1. Entra admin creates app registrations via `docs/DK-Confluent-Entra-App-Runbook.docx` + `docs/app-registrations.xlsx` (or via `powershell/scripts/New-WorkloadApps.ps1`).
+2. Paste each Application (client) ID from the completed spreadsheet into `terraform/live/<env>/workloads.json`.
+3. Trigger `.github/workflows/terraform-workload.yml` for `_org`, then `dev`, `uat`, `prd`.

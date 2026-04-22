@@ -44,19 +44,33 @@ Map of workloads to create pools for. Key is {domain}-{workload}, combined with 
 to produce the display name (e.g. 'mergerarb-madam' under env 'dev' becomes 'dk-confluent-dev-mergerarb-madam').
 
 Each workload:
-  app_client_id          - Entra app registration (client) ID. Used to build api://<id> aud filter.
+  app_client_id          - Entra app registration (client) ID. Used to build the aud filter.
   description            - Optional description shown in the Confluent Console.
-  write_topic_prefixes   - Topic prefixes (without trailing *) granted DeveloperWrite.
-  read_topic_prefixes    - Topic prefixes (without trailing *) granted DeveloperRead.
-  consumer_group_prefixes - Consumer-group prefixes granted DeveloperRead.
+
+Topic / group access lists — use *_prefixes for prefix-match resources (CRN topic=<prefix>*),
+*_names for exact-match resources (CRN topic=<name>). Any list defaults to empty; omit fields
+that don't apply.
+
+  write_topic_prefixes    - Prefix-match topics granted DeveloperWrite.
+  write_topic_names       - Exact-match topics granted DeveloperWrite.
+  read_topic_prefixes     - Prefix-match topics granted DeveloperRead.
+  read_topic_names        - Exact-match topics granted DeveloperRead.
+  manage_topic_prefixes   - Prefix-match topics granted DeveloperManage (create/delete/alter).
+  manage_topic_names      - Exact-match topics granted DeveloperManage.
+  consumer_group_prefixes - Prefix-match consumer groups granted DeveloperRead.
+  consumer_group_names    - Exact-match consumer groups granted DeveloperRead.
 EOT
   type = map(object({
     app_client_id           = string
     description             = optional(string)
     write_topic_prefixes    = optional(list(string), [])
+    write_topic_names       = optional(list(string), [])
     read_topic_prefixes     = optional(list(string), [])
-    consumer_group_prefixes = optional(list(string), [])
+    read_topic_names        = optional(list(string), [])
     manage_topic_prefixes   = optional(list(string), [])
+    manage_topic_names      = optional(list(string), [])
+    consumer_group_prefixes = optional(list(string), [])
+    consumer_group_names    = optional(list(string), [])
   }))
   default = {}
 }

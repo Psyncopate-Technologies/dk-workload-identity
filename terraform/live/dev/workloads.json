@@ -1,0 +1,101 @@
+{
+  "_comment": "Dev-env workloads + Kafka access. Maps topic allocations from Rukai's topic list. The dev logical env covers dev.* and dev2.* topic prefixes in DKP's Kafka.",
+  "_confirm_before_apply": [
+    "confluent_organization_id — DKP hasn't been provided; ask DKP team.",
+    "app_client_id for each workload — set after the Entra admin runs the runbook.",
+    "ibconnect topics listed as 'prefix' by Rukai but have no trailing dot; confirm prefix vs exact-match intent with DKP."
+  ],
+
+  "entra_tenant_id":            "7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8",
+  "confluent_organization_id":  "REPLACE_WITH_DKP_ORGANIZATION_ID",
+  "confluent_environment_id":   "env-xx13z1",
+  "kafka_cluster_id":           "lkc-1o1jkv",
+
+  "workloads": {
+    "mergerarb-madam": {
+      "description": "Merger-Arb MADAM workload — dev (exact-match topics).",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-mergerarb-madam",
+      "write_topic_names": [
+        "dev.deal.calc.mergerarb.json",
+        "dev.deal.mergerarb.compact.json",
+        "dev.deal.calc.mergerarb.avro",
+        "dev.deal.mergerarb.compact.avro",
+        "dev.deal.calc.mergerarb.v2.json",
+        "dev.deal.mergerarb.compact.v2.json",
+        "dev.deal.calc.mergerarb.v2.avro",
+        "dev.deal.mergerarb.compact.v2.avro"
+      ],
+      "read_topic_names": [
+        "dev.deal.calc.mergerarb.json",
+        "dev.deal.mergerarb.compact.json",
+        "dev.deal.calc.mergerarb.avro",
+        "dev.deal.mergerarb.compact.avro",
+        "dev.deal.calc.mergerarb.v2.json",
+        "dev.deal.mergerarb.compact.v2.json",
+        "dev.deal.calc.mergerarb.v2.avro",
+        "dev.deal.mergerarb.compact.v2.avro"
+      ],
+      "consumer_group_prefixes": ["dk-confluent-dev-mergerarb-madam-"]
+    },
+
+    "position-writer": {
+      "description": "Position Service writer — dev.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-position-writer",
+      "write_topic_prefixes": [
+        "dev.transaction.oms.",
+        "dev2.transaction.oms.",
+        "dev.transactionallocation.oms.",
+        "dev2.transactionallocation.oms.",
+        "dev.asoftransactionallocation.oms.",
+        "dev.sod.position.",
+        "dev2.sod.position.",
+        "dev.position.",
+        "dev2.position.",
+        "dev.referencedata.",
+        "dev2.referencedata."
+      ]
+    },
+
+    "position-reader": {
+      "description": "Position Service reader — dev.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-position-reader",
+      "read_topic_prefixes": [
+        "dev.deal.",
+        "dev2.deal.",
+        "dev.security.",
+        "dev2.security.",
+        "dev.manager.",
+        "dev2.manager.",
+        "dev.fund.",
+        "dev2.fund.",
+        "dev.referencedata.",
+        "dev2.referencedata."
+      ],
+      "consumer_group_prefixes": ["dk-confluent-dev-position-reader-"]
+    },
+
+    "tft-writer": {
+      "description": "TFT Service writer — dev.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-tft-writer",
+      "write_topic_prefixes": [
+        "dev.deal.",
+        "dev2.deal.",
+        "dev.security.",
+        "dev2.security.",
+        "dev.manager.",
+        "dev2.manager.",
+        "dev.fund.",
+        "dev2.fund."
+      ]
+    },
+
+    "ibconnect-connector": {
+      "description": "IB Connect connector — dev.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-ibconnect-connector",
+      "write_topic_prefixes": [
+        "dev.ibconnect.streams.avro",
+        "dev.ibconnect.rawstreams.json"
+      ]
+    }
+  }
+}

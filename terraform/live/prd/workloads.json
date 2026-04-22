@@ -1,0 +1,48 @@
+{
+  "_comment": "PRD-env workloads + Kafka access. Rukai has not provided a prd topic list; fields below are placeholders patterned on dev/uat. Request the final prd topic allocations from DKP before apply.",
+  "_confirm_before_apply": [
+    "confluent_organization_id — ask DKP team.",
+    "app_client_id for each workload — set after the Entra admin runs the runbook.",
+    "prd topic prefixes (prd.*, prd2.*?) and exact-match lists — ask Rukai for the prd topic catalog."
+  ],
+
+  "entra_tenant_id":            "7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8",
+  "confluent_organization_id":  "REPLACE_WITH_DKP_ORGANIZATION_ID",
+  "confluent_environment_id":   "env-xx13z1",
+  "kafka_cluster_id":           "lkc-wxdwk9",
+
+  "workloads": {
+    "mergerarb-madam": {
+      "description": "Merger-Arb MADAM workload — prd (exact-match topics).",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-prd-mergerarb-madam",
+      "write_topic_names": ["REPLACE_WITH_PRD_MERGERARB_TOPIC_1"],
+      "read_topic_names":  ["REPLACE_WITH_PRD_MERGERARB_TOPIC_1"],
+      "consumer_group_prefixes": ["dk-confluent-prd-mergerarb-madam-"]
+    },
+
+    "position-writer": {
+      "description": "Position Service writer — prd.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-prd-position-writer",
+      "write_topic_prefixes": ["REPLACE_WITH_PRD_POSITION_WRITER_PREFIX"]
+    },
+
+    "position-reader": {
+      "description": "Position Service reader — prd.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-prd-position-reader",
+      "read_topic_prefixes": ["REPLACE_WITH_PRD_POSITION_READER_PREFIX"],
+      "consumer_group_prefixes": ["dk-confluent-prd-position-reader-"]
+    },
+
+    "tft-writer": {
+      "description": "TFT Service writer — prd.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-prd-tft-writer",
+      "write_topic_prefixes": ["REPLACE_WITH_PRD_TFT_WRITER_PREFIX"]
+    },
+
+    "ibconnect-connector": {
+      "description": "IB Connect connector — prd.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-prd-ibconnect-connector",
+      "write_topic_prefixes": ["REPLACE_WITH_PRD_IBCONNECT_PREFIX"]
+    }
+  }
+}

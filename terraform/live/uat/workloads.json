@@ -1,0 +1,102 @@
+{
+  "_comment": "UAT-env workloads + Kafka access. Maps topic allocations from Rukai's topic list. The uat logical env covers uat.* and uat2.* topic prefixes in DKP's Kafka, plus cdc.uat.position.* for the reader. Same cluster as dev (nonprod) — identity pools are separated by name.",
+  "_confirm_before_apply": [
+    "confluent_organization_id — DKP hasn't been provided; ask DKP team.",
+    "app_client_id for each workload — set after the Entra admin runs the runbook.",
+    "ibconnect topics listed as 'prefix' by Rukai but have no trailing dot; confirm prefix vs exact-match intent with DKP."
+  ],
+
+  "entra_tenant_id":            "7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8",
+  "confluent_organization_id":  "REPLACE_WITH_DKP_ORGANIZATION_ID",
+  "confluent_environment_id":   "env-xx13z1",
+  "kafka_cluster_id":           "lkc-1o1jkv",
+
+  "workloads": {
+    "mergerarb-madam": {
+      "description": "Merger-Arb MADAM workload — uat (exact-match topics).",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-uat-mergerarb-madam",
+      "write_topic_names": [
+        "uat.deal.calc.mergerarb.json",
+        "uat.deal.mergerarb.compact.json",
+        "uat.deal.calc.mergerarb.avro",
+        "uat.deal.mergerarb.compact.avro",
+        "uat.deal.calc.mergerarb.v2.json",
+        "uat.deal.mergerarb.compact.v2.json",
+        "uat.deal.calc.mergerarb.v2.avro",
+        "uat.deal.mergerarb.compact.v2.avro"
+      ],
+      "read_topic_names": [
+        "uat.deal.calc.mergerarb.json",
+        "uat.deal.mergerarb.compact.json",
+        "uat.deal.calc.mergerarb.avro",
+        "uat.deal.mergerarb.compact.avro",
+        "uat.deal.calc.mergerarb.v2.json",
+        "uat.deal.mergerarb.compact.v2.json",
+        "uat.deal.calc.mergerarb.v2.avro",
+        "uat.deal.mergerarb.compact.v2.avro"
+      ],
+      "consumer_group_prefixes": ["dk-confluent-uat-mergerarb-madam-"]
+    },
+
+    "position-writer": {
+      "description": "Position Service writer — uat.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-uat-position-writer",
+      "write_topic_prefixes": [
+        "uat.transaction.oms.",
+        "uat2.transaction.oms.",
+        "uat.transactionallocation.oms.",
+        "uat2.transactionallocation.oms.",
+        "uat.asoftransactionallocation.oms.",
+        "uat.sod.position.",
+        "uat2.sod.position.",
+        "uat.position.",
+        "uat2.position.",
+        "uat.referencedata.",
+        "uat2.referencedata."
+      ]
+    },
+
+    "position-reader": {
+      "description": "Position Service reader — uat.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-uat-position-reader",
+      "read_topic_prefixes": [
+        "cdc.uat.position.",
+        "uat.deal.",
+        "uat.security.",
+        "uat.manager.",
+        "uat.fund.",
+        "uat2.deal.",
+        "uat2.security.",
+        "uat2.manager.",
+        "uat2.fund.",
+        "uat.referencedata.",
+        "uat2.referencedata."
+      ],
+      "consumer_group_prefixes": ["dk-confluent-uat-position-reader-"]
+    },
+
+    "tft-writer": {
+      "description": "TFT Service writer — uat.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-uat-tft-writer",
+      "write_topic_prefixes": [
+        "uat.deal.",
+        "uat.security.",
+        "uat.manager.",
+        "uat.fund.",
+        "uat2.deal.",
+        "uat2.security.",
+        "uat2.manager.",
+        "uat2.fund."
+      ]
+    },
+
+    "ibconnect-connector": {
+      "description": "IB Connect connector — uat.",
+      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-uat-ibconnect-connector",
+      "write_topic_prefixes": [
+        "uat.ibconnect.streams.avro",
+        "uat.ibconnect.rawstreams.json"
+      ]
+    }
+  }
+}
