@@ -26,6 +26,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write  # OIDC for azure/login (state backend is in Azure Storage)
 
 jobs:
   terragrunt:
@@ -34,10 +35,21 @@ jobs:
     env:
       TF_VAR_confluent_cloud_api_key: ${{ secrets.CONFLUENT_CLOUD_API_KEY }}
       TF_VAR_confluent_cloud_api_secret: ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_USE_OIDC: "true"
       TARGET_STACK: ${{ github.event_name == 'workflow_dispatch' && inputs.stack || 'dev' }}
       TG_ACTION: ${{ github.event_name == 'workflow_dispatch' && inputs.action || 'plan' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Install pinned tools
         run: |

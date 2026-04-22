@@ -72,17 +72,31 @@ PoC Azure/Confluent resources use prefix `dk-confluent-poc` to stay clearly sepa
 - **Pipeline runs** use **GitHub Actions repo secrets**. Whenever I introduce a new secret, I will **explicitly call out** the secret name to create in GitHub → Settings → Secrets and variables → Actions before the pipeline will work.
 - **Current GitHub secrets required:**
   - `CONFLUENT_CLOUD_API_KEY`, `CONFLUENT_CLOUD_API_SECRET` — for both workflows
-  - `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_CLIENT_ID` — for `terraform-poc-infra.yml` only (`AZURE_CLIENT_ID` is the federated credential the runner uses to authenticate to Azure)
+  - `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_CLIENT_ID` — for both workflows (the state backend is in Azure, so `terraform-workload.yml` also needs Azure auth). `AZURE_CLIENT_ID` is the GH-federated Entra app the runner uses; it needs **Storage Blob Data Contributor** on the tfstate SA, plus `Contributor` on whatever the workflow provisions.
 - **Development credentials** (Confluent Cloud Org + cluster admin keys) live at:
   `/Users/ayeleadmassu/Documents/Confluent-PS/DKP/engagment-2/Day-2/credentials`
 - **Azure Tenant ID** (Ayele's dev tenant): `1b9dca15-4db4-4905-8725-d318d11c6875`.
 - **Azure Subscription ID** (PoC — where `poc-infra/` lands): `e2fc4b68-6dd0-4c89-99c6-d6b16f9a0eba`.
   Ayele logs into Azure via browser; Terraform/PowerShell picks up the CLI session. Do not ask for or store Azure credentials.
 
-## State backend
+## State backend — Azure Storage
 
-- **Today:** local state (`terraform/live/<stack>/terraform.tfstate`, same for `poc-infra/`).
-- **Target:** Azure Storage remote backend, cut over **before GitHub Actions apply at scale**. Planned to live in the same PoC resource group.
+Both Terragrunt trees use an `azurerm` remote backend:
+
+| | |
+|---|---|
+| Resource group | `rg-dk-confluent-poc-tfstate` |
+| Storage account | `dkconfluentpoctfstate` |
+| Container | `tfstate` |
+| Key layout | `<tree>/<stack>/terraform.tfstate` (e.g. `poc-infra/azure-network/terraform.tfstate`) |
+| Auth | Azure AD (`use_azuread_auth = true`). Local runs use the signed-in `az` CLI session; CI uses GitHub OIDC → federated Entra app. |
+
+RBAC: the principal running terragrunt (user locally, federated identity in CI) needs **Storage Blob Data Contributor** on the storage account. Ayele's user is already granted.
+
+Backend config is overridable via env vars — DK overrides these for their own tenant/account without editing `root.hcl`:
+
+- `TG_STATE_RESOURCE_GROUP`, `TG_STATE_STORAGE_ACCOUNT`, `TG_STATE_CONTAINER`
+- `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`
 
 ## Tooling — bring-your-own, do not assume pre-installed
 
