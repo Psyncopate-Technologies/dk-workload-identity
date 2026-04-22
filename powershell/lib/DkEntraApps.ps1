@@ -72,6 +72,8 @@ function New-WorkloadApp {
     Update-MgApplication -ApplicationId $app.Id -IdentifierUris @($identifierUri)
 
     # Expose-an-API: one scope so admins can see the app is intentionally a resource.
+    # RequestedAccessTokenVersion=2 so tokens carry the v2 issuer that matches the
+    # Confluent identity provider's issuer URL (login.microsoftonline.com/.../v2.0).
     $scope = @{
         Id                       = [guid]::NewGuid().ToString()
         AdminConsentDescription  = "Allow the application to access Kafka on behalf of the workload."
@@ -80,11 +82,19 @@ function New-WorkloadApp {
         Type                     = "Admin"
         Value                    = $ApiScopeName
     }
-    Update-MgApplication -ApplicationId $app.Id -Api @{ Oauth2PermissionScopes = @($scope) }
+    Update-MgApplication -ApplicationId $app.Id -Api @{
+        Oauth2PermissionScopes      = @($scope)
+        RequestedAccessTokenVersion = 2
+    }
 
     if ($Description) {
         Update-MgApplication -ApplicationId $app.Id -Description $Description
     }
+
+    # Entra creates the app registration but NOT the service principal — needed for
+    # token issuance (client_credentials grant) and RBAC assignments. Create it here.
+    $sp = New-MgServicePrincipal -AppId $app.AppId
+    Write-Information "Created service principal $($sp.Id) for app '$DisplayName'." -InformationAction Continue
 
     Write-Information "Created app '$DisplayName' (appId=$($app.AppId), identifierUri=$identifierUri)." -InformationAction Continue
     Get-MgApplication -ApplicationId $app.Id

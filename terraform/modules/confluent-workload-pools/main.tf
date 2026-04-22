@@ -33,7 +33,10 @@ resource "confluent_identity_pool" "workload" {
   display_name   = "${var.name_prefix}-${var.environment_name}-${each.key}"
   description    = coalesce(each.value.description, "Workload pool for ${each.key} (${var.environment_name})")
   identity_claim = "claims.sub"
-  filter         = "claims.tid == \"${var.entra_tenant_id}\" && claims.aud == \"api://${each.value.app_client_id}\""
+
+  # v2 Entra tokens (requestedAccessTokenVersion=2) emit aud as the client ID GUID,
+  # not the Application ID URI. The PowerShell side sets v2 on every app we create.
+  filter = "claims.tid == \"${var.entra_tenant_id}\" && claims.aud == \"${each.value.app_client_id}\""
 }
 
 resource "confluent_role_binding" "write_topic" {
