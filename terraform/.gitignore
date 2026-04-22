@@ -1,6 +1,6 @@
 # Terraform
+# Note: .terraform.lock.hcl IS committed (pins provider versions + hashes).
 **/.terraform/
-**/.terraform.lock.hcl
 **/terraform.tfstate
 **/terraform.tfstate.*
 **/terraform.tfstate.d/

@@ -16,8 +16,9 @@ tools/.cache/
 tools/.python/
 
 # Terraform / Terragrunt
+# Note: .terraform.lock.hcl IS committed (pins provider versions + hashes).
+# The .terragrunt-cache/ rule below still excludes cache-side copies of the lockfile.
 **/.terraform/
-**/.terraform.lock.hcl
 **/terraform.tfstate
 **/terraform.tfstate.*
 **/terraform.tfstate.d/
@@ -34,3 +35,5 @@ crash.*.log
 .DS_Store
 .idea/
 *.swp
+# Office / Excel lock files created when a document is open
+~$*
