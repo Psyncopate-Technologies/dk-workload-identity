@@ -70,9 +70,14 @@ PoC Azure/Confluent resources use prefix `dk-confluent-poc` to stay clearly sepa
 - **Never commit secrets.** Sensitive values go in `.env` at the repo root (gitignored).
 - **Local runs** source credentials from `.env` — Terraform picks them up via `TF_VAR_*` env vars; PowerShell reads from the process environment.
 - **Pipeline runs** use **GitHub Actions repo secrets**. Whenever I introduce a new secret, I will **explicitly call out** the secret name to create in GitHub → Settings → Secrets and variables → Actions before the pipeline will work.
-- **Current GitHub secrets required:**
-  - `CONFLUENT_CLOUD_API_KEY`, `CONFLUENT_CLOUD_API_SECRET` — for both workflows
-  - `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_CLIENT_ID` — for both workflows (the state backend is in Azure, so `terraform-workload.yml` also needs Azure auth). `AZURE_CLIENT_ID` is the GH-federated Entra app the runner uses; it needs **Storage Blob Data Contributor** on the tfstate SA, plus `Contributor` on whatever the workflow provisions.
+- **GitHub repo secrets (both workflows):**
+  - `AZURE_CLIENT_ID` = `f06375c6-df02-4309-9588-3c1ae9d2c404` (Entra app `dk-confluent-poc-gh-actions`)
+  - `AZURE_TENANT_ID` = `1b9dca15-4db4-4905-8725-d318d11c6875`
+  - `AZURE_SUBSCRIPTION_ID` = `e2fc4b68-6dd0-4c89-99c6-d6b16f9a0eba`
+  - `CONFLUENT_CLOUD_API_KEY` = Org key from `Day-2/credentials/api-keys.env`
+  - `CONFLUENT_CLOUD_API_SECRET` = matching secret
+- **GH OIDC federated creds** on the Entra app: `ref:refs/heads/main` and `pull_request` (bootstrap script: [`poc-infra/scripts/bootstrap-gh-oidc.sh`](poc-infra/scripts/bootstrap-gh-oidc.sh)).
+- **RBAC already granted** to the app's service principal: `Storage Blob Data Contributor` on the tfstate SA, `Contributor` on the PoC subscription.
 - **Development credentials** (Confluent Cloud Org + cluster admin keys) live at:
   `/Users/ayeleadmassu/Documents/Confluent-PS/DKP/engagment-2/Day-2/credentials`
 - **Azure Tenant ID** (Ayele's dev tenant): `1b9dca15-4db4-4905-8725-d318d11c6875`.
