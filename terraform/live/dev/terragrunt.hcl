@@ -21,9 +21,10 @@ inputs = {
   environment_name          = "dev"
   identity_provider_id      = dependency.provider.outputs.identity_provider_id
   entra_tenant_id           = "1b9dca15-4db4-4905-8725-d318d11c6875"
-  confluent_organization_id = "0369af3f-d68c-44de-97cb-52a50017dc59"
-  confluent_environment_id  = "env-1y1176"
-  kafka_cluster_id          = "lkc-x9qrwg"
+  confluent_organization_id = "9783d48b-0991-4970-86c6-f853940e56d3"
+  # POC env + nonprod Enterprise cluster (dev maps to nonprod per project convention).
+  confluent_environment_id  = "env-g5m78m"
+  kafka_cluster_id          = "lkc-1gjowz"
 
   # One pool per workload. Key is {domain}-{workload} — produces pool name
   # dk-confluent-dev-<key> (e.g. dk-confluent-dev-mergerarb-madam).

@@ -19,7 +19,7 @@ inputs = {
   environment_name          = "uat"
   identity_provider_id      = dependency.provider.outputs.identity_provider_id
   entra_tenant_id           = "REPLACE_WITH_UAT_TENANT_ID"
-  confluent_organization_id = "0369af3f-d68c-44de-97cb-52a50017dc59"
+  confluent_organization_id = "9783d48b-0991-4970-86c6-f853940e56d3"
   confluent_environment_id  = "REPLACE_WITH_UAT_CONFLUENT_ENV_ID"
   kafka_cluster_id          = "REPLACE_WITH_UAT_KAFKA_CLUSTER_ID"
 
