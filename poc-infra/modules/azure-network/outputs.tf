@@ -17,3 +17,8 @@ output "private_endpoint_subnet_ids" {
   description = "Map of tier -> subnet ID for Confluent Private Endpoints."
   value       = { for k, s in azurerm_subnet.private_endpoints : k => s.id }
 }
+
+output "compute_subnet_ids" {
+  description = "Map of tier -> compute subnet ID. Absent for tiers without compute_cidr set."
+  value       = { for k, s in azurerm_subnet.compute : k => s.id }
+}

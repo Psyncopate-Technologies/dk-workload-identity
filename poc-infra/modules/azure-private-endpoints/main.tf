@@ -52,3 +52,40 @@ resource "confluent_private_link_attachment_connection" "this" {
     id = var.private_link_attachment_id
   }
 }
+
+# Bootstrap A record per cluster — lkc-*.<dns-domain> -> PE IP.
+resource "azurerm_private_dns_a_record" "bootstrap" {
+  for_each = var.tiers
+
+  name                = each.value.cluster_id
+  zone_name           = azurerm_private_dns_zone.this.name
+  resource_group_name = var.resource_group_name
+  ttl                 = 60
+  records             = [azurerm_private_endpoint.this[each.key].private_service_connection[0].private_ip_address]
+  tags                = var.tags
+}
+
+# Per-broker A records — lkc-*-g<NNN>.<dns-domain> -> PE IP. Enterprise clusters
+# advertise per-broker hostnames after the client connects to the bootstrap.
+locals {
+  broker_records = merge([
+    for tier_key, tier in var.tiers : {
+      for i in range(tier.broker_count) :
+      "${tier_key}-g${format("%03d", i)}" => {
+        tier = tier_key
+        name = "${tier.cluster_id}-g${format("%03d", i)}"
+      }
+    }
+  ]...)
+}
+
+resource "azurerm_private_dns_a_record" "brokers" {
+  for_each = local.broker_records
+
+  name                = each.value.name
+  zone_name           = azurerm_private_dns_zone.this.name
+  resource_group_name = var.resource_group_name
+  ttl                 = 60
+  records             = [azurerm_private_endpoint.this[each.value.tier].private_service_connection[0].private_ip_address]
+  tags                = var.tags
+}

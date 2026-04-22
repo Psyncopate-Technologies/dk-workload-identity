@@ -17,6 +17,7 @@ inputs = {
     nonprod = {
       address_space         = ["10.40.0.0/16"]
       private_endpoint_cidr = "10.40.1.0/24"
+      compute_cidr          = "10.40.2.0/24"
     }
     prod = {
       address_space         = ["10.41.0.0/16"]

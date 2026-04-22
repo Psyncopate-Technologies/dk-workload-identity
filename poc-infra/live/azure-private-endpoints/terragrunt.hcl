@@ -26,6 +26,7 @@ dependency "platform" {
     private_link_attachment_id  = "platt-mock00"
     private_link_service_alias  = "mock.eastus.azure.privatelinkservice"
     private_link_dns_domain     = "eastus.azure.private.confluent.cloud"
+    cluster_ids                 = { nonprod = "lkc-mock00", prod = "lkc-mock01" }
   }
   mock_outputs_allowed_terraform_commands = ["plan", "validate"]
 }
@@ -44,11 +45,13 @@ inputs = {
       vnet_id                   = dependency.network.outputs.vnet_ids["nonprod"]
       subnet_id                 = dependency.network.outputs.private_endpoint_subnet_ids["nonprod"]
       access_point_display_name = "DK-POC-NONPROD-ACCESSPOINT"
+      cluster_id                = dependency.platform.outputs.cluster_ids["nonprod"]
     }
     prod = {
       vnet_id                   = dependency.network.outputs.vnet_ids["prod"]
       subnet_id                 = dependency.network.outputs.private_endpoint_subnet_ids["prod"]
       access_point_display_name = "DK-POC-PROD-ACCESSPOINT"
+      cluster_id                = dependency.platform.outputs.cluster_ids["prod"]
     }
   }
 

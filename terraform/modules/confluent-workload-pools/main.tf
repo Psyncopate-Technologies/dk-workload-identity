@@ -21,6 +21,13 @@ locals {
       "${wl_key}--read-group--${prefix}" => { workload = wl_key, prefix = prefix }
     }
   ]...)
+
+  manage_topic_bindings = merge([
+    for wl_key, wl in var.workloads : {
+      for prefix in wl.manage_topic_prefixes :
+      "${wl_key}--manage-topic--${prefix}" => { workload = wl_key, prefix = prefix }
+    }
+  ]...)
 }
 
 resource "confluent_identity_pool" "workload" {
@@ -61,4 +68,12 @@ resource "confluent_role_binding" "read_group" {
   principal   = "User:${confluent_identity_pool.workload[each.value.workload].id}"
   role_name   = "DeveloperRead"
   crn_pattern = "${local.kafka_rb_crn_prefix}/group=${each.value.prefix}*"
+}
+
+resource "confluent_role_binding" "manage_topic" {
+  for_each = local.manage_topic_bindings
+
+  principal   = "User:${confluent_identity_pool.workload[each.value.workload].id}"
+  role_name   = "DeveloperManage"
+  crn_pattern = "${local.kafka_rb_crn_prefix}/topic=${each.value.prefix}*"
 }

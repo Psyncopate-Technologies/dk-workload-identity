@@ -25,3 +25,12 @@ resource "azurerm_subnet" "private_endpoints" {
   # Required for Private Endpoints per Azure docs.
   private_endpoint_network_policies = "Disabled"
 }
+
+resource "azurerm_subnet" "compute" {
+  for_each = { for k, v in var.vnets : k => v if v.compute_cidr != null }
+
+  name                 = "${var.name_prefix}-${each.key}-compute-subnet"
+  resource_group_name  = azurerm_resource_group.this.name
+  virtual_network_name = azurerm_virtual_network.this[each.key].name
+  address_prefixes     = [each.value.compute_cidr]
+}

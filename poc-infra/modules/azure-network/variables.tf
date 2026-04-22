@@ -18,12 +18,14 @@ variable "resource_group_name" {
 variable "vnets" {
   description = <<EOT
 Map of VNets to create. Key is the tier name (nonprod, prod). Each:
-  address_space        - CIDR block (e.g. ["10.10.0.0/16"]).
-  private_endpoint_cidr - Subnet CIDR inside the VNet for Confluent Private Endpoints.
+  address_space         - CIDR block (e.g. ["10.10.0.0/16"]).
+  private_endpoint_cidr - Subnet CIDR for Confluent Private Endpoints (network policies disabled).
+  compute_cidr          - Optional subnet CIDR for general compute (VMs, containers). Null to skip.
 EOT
   type = map(object({
     address_space         = list(string)
     private_endpoint_cidr = string
+    compute_cidr          = optional(string)
   }))
 }
 

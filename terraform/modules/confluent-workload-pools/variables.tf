@@ -56,6 +56,7 @@ EOT
     write_topic_prefixes    = optional(list(string), [])
     read_topic_prefixes     = optional(list(string), [])
     consumer_group_prefixes = optional(list(string), [])
+    manage_topic_prefixes   = optional(list(string), [])
   }))
   default = {}
 }

@@ -35,6 +35,7 @@ inputs = {
       write_topic_prefixes    = ["mergerarb.madam."]
       read_topic_prefixes     = ["mergerarb.madam."]
       consumer_group_prefixes = ["mergerarb-madam-"]
+      manage_topic_prefixes   = ["mergerarb.madam."]
     }
   }
 }

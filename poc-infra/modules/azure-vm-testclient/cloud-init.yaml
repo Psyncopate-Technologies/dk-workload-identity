@@ -1,0 +1,104 @@
+#cloud-config
+# Bootstraps a Kafka smoke-test client: Python, confluent-kafka, and the Confluent CLI.
+# Also drops a smoke-test Python script at /opt/smoke-test.py that the host-side wrapper
+# (poc-infra/scripts/smoke-test-kafka.sh) invokes via `az vm run-command`.
+package_update: true
+packages:
+  - python3
+  - python3-pip
+  - python3-venv
+  - curl
+  - jq
+
+write_files:
+  - path: /opt/smoke-test.py
+    permissions: '0755'
+    content: |
+      #!/usr/bin/env python3
+      # Kafka OAUTHBEARER smoke test — uses librdkafka's built-in OIDC client_credentials
+      # flow. Exercises the full chain: create topic → produce → consume → delete topic,
+      # all authenticated as the workload pool.
+      import os, sys, uuid
+      from confluent_kafka import Producer, Consumer
+      from confluent_kafka.admin import AdminClient, NewTopic
+
+      required = ["CLIENT_ID", "CLIENT_SECRET", "TENANT_ID", "CLUSTER_ID", "POOL_ID", "BOOTSTRAP"]
+      missing = [k for k in required if not os.environ.get(k)]
+      if missing:
+          print(f"missing env vars: {missing}", file=sys.stderr); sys.exit(2)
+
+      client_id = os.environ["CLIENT_ID"]
+      secret    = os.environ["CLIENT_SECRET"]
+      tenant    = os.environ["TENANT_ID"]
+      cluster   = os.environ["CLUSTER_ID"]
+      pool      = os.environ["POOL_ID"]
+      bootstrap = os.environ["BOOTSTRAP"]
+      topic     = os.environ.get("TOPIC", f"mergerarb.madam.smoke-{uuid.uuid4().hex[:8]}")
+      group     = os.environ.get("GROUP", f"mergerarb-madam-smoke-{uuid.uuid4().hex[:8]}")
+      probe     = f"hello from smoke test {uuid.uuid4()}".encode()
+
+      # librdkafka defaults to RHEL-style CA paths; point it at Ubuntu's bundle.
+      ca_bundle = os.environ.get("SSL_CA_LOCATION", "/etc/ssl/certs/ca-certificates.crt")
+
+      common = {
+          "bootstrap.servers": bootstrap,
+          "security.protocol": "SASL_SSL",
+          "ssl.ca.location": ca_bundle,
+          "sasl.mechanisms": "OAUTHBEARER",
+          "sasl.oauthbearer.method": "oidc",
+          "sasl.oauthbearer.client.id": client_id,
+          "sasl.oauthbearer.client.secret": secret,
+          "sasl.oauthbearer.token.endpoint.url": f"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token",
+          "sasl.oauthbearer.scope": f"api://{client_id}/.default",
+          "sasl.oauthbearer.extensions": f"logicalCluster={cluster},identityPoolId={pool}",
+      }
+
+      # Create topic
+      admin = AdminClient(common)
+      fut = admin.create_topics([NewTopic(topic, num_partitions=1, replication_factor=3)])[topic]
+      try:
+          fut.result(timeout=30)
+          print(f"CREATED topic={topic}")
+      except Exception as e:
+          print(f"CREATE FAILED: {e}", file=sys.stderr); sys.exit(1)
+
+      try:
+          # Produce
+          producer = Producer(common)
+          delivered = []
+          producer.produce(topic, probe, on_delivery=lambda err, msg: delivered.append((err, msg)))
+          producer.flush(30)
+          if not delivered or delivered[0][0] is not None:
+              err = delivered[0][0] if delivered else "no delivery report"
+              print(f"PRODUCE FAILED: {err}", file=sys.stderr); sys.exit(1)
+          d = delivered[0][1]
+          print(f"PRODUCED ok: topic={d.topic()} partition={d.partition()} offset={d.offset()}")
+
+          # Consume
+          consumer = Consumer({**common, "group.id": group, "auto.offset.reset": "earliest", "enable.auto.commit": False})
+          consumer.subscribe([topic])
+          got = None
+          for _ in range(30):
+              msg = consumer.poll(1.0)
+              if msg and not msg.error() and msg.value() == probe:
+                  got = msg; break
+          consumer.close()
+          if got is None:
+              print("CONSUME FAILED: probe not observed within 30s", file=sys.stderr); sys.exit(1)
+          print(f"CONSUMED ok: {got.value().decode()}")
+      finally:
+          # Cleanup topic
+          admin.delete_topics([topic])[topic].result(timeout=30)
+          print(f"DELETED topic={topic}")
+
+      print("SUCCESS")
+
+runcmd:
+  - pip3 install --upgrade pip
+  - pip3 install confluent-kafka requests
+  - curl -sL --http1.1 https://cnfl.io/cli | sh -s -- -b /usr/local/bin latest
+  # librdkafka's OIDC client uses libcurl with compile-time CA path /etc/pki/tls/certs/ca-bundle.crt (RHEL).
+  # On Ubuntu, symlink to the actual bundle so OIDC token fetches can verify TLS.
+  - mkdir -p /etc/pki/tls/certs
+  - ln -sf /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+  - touch /var/lib/cloud/ready
