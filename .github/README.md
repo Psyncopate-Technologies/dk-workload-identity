@@ -5,7 +5,8 @@ Cloud organization.
 
 | Workflow | Purpose | Trigger |
 |---|---|---|
-| `workflows/terraform-workload.yml` | Runs `terragrunt <action>` against one stack under `terraform/live/`. | `workflow_dispatch` (pick `stack` + `action`) or PR plan on paths under `terraform/**` / `tools/**` |
+| `workflows/terraform-workload.yml`     | DKP-operated — runs `terragrunt <action>` against one stack under `terraform/live/`. | `workflow_dispatch` (pick `stack` + `action`) or PR plan on paths under `terraform/**` / `tools/**` |
+| `workflows/terraform-poc-workload.yml` | Ayele-side PoC validation of the same stacks. DKP can delete after hand-off. | same shape |
 
 Actions available: `plan` / `apply` / `destroy`. Pull-request runs always `plan`.
 

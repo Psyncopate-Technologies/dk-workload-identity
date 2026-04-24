@@ -1,0 +1,84 @@
+name: terraform-poc-workload
+
+# ============================================================================
+# Confluent PS-side (Ayele's) workflow for the terraform/ tree.
+#
+# Applies the same DK-shipped code as terraform-workload.yml, but targeted at
+# Ayele's PoC Confluent org + Azure subscription for pre-delivery validation.
+# DKP can delete this file after hand-off.
+#
+# For the PoC-only Azure + Confluent infra (VNets, clusters, PrivateLink) see
+# terraform-poc-infra.yml.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: "Stack directory under terraform/live/ (e.g. _org, dev, uat, prd)"
+        type: choice
+        required: true
+        options: [_org, dev, uat, prd]
+        default: dev
+      action:
+        description: "Terragrunt action"
+        type: choice
+        required: true
+        options: [plan, apply, destroy]
+        default: plan
+  pull_request:
+    paths:
+      - "terraform/**"
+      - "tools/**"
+      - ".github/workflows/terraform-poc-workload.yml"
+
+permissions:
+  contents: read
+  id-token: write  # OIDC for azure/login (state backend is in Azure Storage)
+
+jobs:
+  terragrunt:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_confluent_cloud_api_key: ${{ secrets.CONFLUENT_CLOUD_API_KEY }}
+      TF_VAR_confluent_cloud_api_secret: ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_USE_OIDC: "true"
+      TARGET_STACK: ${{ github.event_name == 'workflow_dispatch' && inputs.stack || 'dev' }}
+      TG_ACTION: ${{ github.event_name == 'workflow_dispatch' && inputs.action || 'plan' }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Azure login (OIDC)
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install pinned tools
+        run: |
+          ./tools/install.sh
+          echo "${GITHUB_WORKSPACE}/tools/bin" >> "${GITHUB_PATH}"
+
+      - name: Version check
+        run: |
+          terraform -version
+          terragrunt -version
+          confluent version
+          python3.12 --version
+
+      - name: Terragrunt init
+        working-directory: terraform/live/${{ env.TARGET_STACK }}
+        run: terragrunt init -input=false
+
+      - name: Terragrunt ${{ env.TG_ACTION }}
+        working-directory: terraform/live/${{ env.TARGET_STACK }}
+        run: |
+          case "${TG_ACTION}" in
+            plan)    terragrunt plan -input=false ;;
+            apply)   terragrunt apply -input=false -auto-approve ;;
+            destroy) terragrunt destroy -input=false -auto-approve ;;
+          esac
