@@ -1,8 +1,10 @@
-# .github/workflows/
+# .github/
+
+GitHub-side config for this repo — currently just the Actions workflow under `workflows/`.
 
 | File | Workflow name | What it does |
 |---|---|---|
-| `terraform-workload.yml` | `terraform-workload` | Applies `terraform/live/<stack>` against DKP's Confluent org + Azure subscription. Workload-identity auth (GitHub OIDC → User-Assigned Managed Identity) — no long-lived service-principal password. |
+| `workflows/terraform-workload.yml` | `terraform-workload` | Applies `terraform/live/<stack>` against DKP's Confluent org + Azure subscription. Workload-identity auth (GitHub OIDC → User-Assigned Managed Identity) — no long-lived service-principal password. |
 
 The workflow:
 - triggers on `workflow_dispatch` (pick `stack` + `action`) and on PRs touching `terraform/**`, `tools/**`, or itself;
@@ -39,8 +41,10 @@ See `CHECKLIST.md` §3 for bootstrap commands.
 
 ## Local CLI equivalent
 
+From the repo root:
+
 ```bash
-set -a; source ../../.env; set +a
+set -a; source .env; set +a
 source tools/env.sh
 cd terraform/live/<stack>
 terragrunt init && terragrunt plan
