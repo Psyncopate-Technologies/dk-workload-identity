@@ -3,18 +3,19 @@
   "_confirm_before_apply": [
     "confluent_organization_id — DKP hasn't been provided; ask DKP team.",
     "app_client_id for each workload — set after the Entra admin runs the runbook.",
-    "ibconnect topics listed as 'prefix' by Rukai but have no trailing dot; confirm prefix vs exact-match intent with DKP."
+    "ibconnect topics listed as 'prefix' by Rukai but have no trailing dot; confirm prefix vs exact-match intent with DKP.",
+    "ibconnect-stream: App registration 'dk-ibconnect-stream-api-nonprod' covers both dev AND uat topics. Confirm if this workload should stay here or be handled separately."
   ],
 
   "entra_tenant_id":            "7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8",
-  "confluent_organization_id":  "REPLACE_WITH_DKP_ORGANIZATION_ID",
+  "confluent_organization_id":  "411f1aac-d31e-44fa-a306-3a09b703ec74",
   "confluent_environment_id":   "env-xx13z1",
   "kafka_cluster_id":           "lkc-1o1jkv",
 
   "workloads": {
     "mergerarb-madam": {
       "description": "Merger-Arb MADAM workload — dev (exact-match topics).",
-      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-mergerarb-madam",
+      "app_client_id": "0dcd6973-2175-4c93-9c10-bcdba0df9065",
       "write_topic_names": [
         "dev.deal.calc.mergerarb.json",
         "dev.deal.mergerarb.compact.json",
@@ -38,10 +39,65 @@
       "consumer_group_prefixes": ["dk-confluent-dev-mergerarb-madam-"]
     },
 
-    "position-writer": {
-      "description": "Position Service writer — dev.",
-      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-position-writer",
+    "position-edp": {
+      "description": "Position EDP workload — dev (merged writer + reader).",
+      "app_client_id": "78b7d7a7-aaf5-49f9-af83-02e6a1c263e0",
       "write_topic_prefixes": [
+        "dev.transaction.oms.",
+        "dev2.transaction.oms.",
+        "dev.transactionallocation.oms.",
+        "dev2.transactionallocation.oms.",
+        "dev.asoftransactionallocation.oms.",
+        "dev.sod.position.",
+        "dev2.sod.position.",
+        "dev.position.",
+        "dev2.position.",
+        "dev.referencedata.",
+        "dev2.referencedata."
+      ],
+      "read_topic_prefixes": [
+        "dev.transaction.oms.",
+        "dev2.transaction.oms.",
+        "dev.transactionallocation.oms.",
+        "dev2.transactionallocation.oms.",
+        "dev.asoftransactionallocation.oms.",
+        "dev.sod.position.",
+        "dev2.sod.position.",
+        "dev.position.",
+        "dev2.position.",
+        "dev.referencedata.",
+        "dev2.referencedata.",
+        "dev.deal.",
+        "dev2.deal.",
+        "dev.security.",
+        "dev2.security.",
+        "dev.manager.",
+        "dev2.manager.",
+        "dev.fund.",
+        "dev2.fund."
+      ]
+    },
+
+    "tft-reference-data": {
+      "description": "TFT Reference Data workload — dev.",
+      "app_client_id": "e01934f5-9ab1-4bc9-983f-36fc816555c8",
+      "write_topic_prefixes": [
+        "dev.deal.",
+        "dev2.deal.",
+        "dev.security.",
+        "dev2.security.",
+        "dev.manager.",
+        "dev2.manager.",
+        "dev.fund.",
+        "dev2.fund."
+      ],
+      "consumer_group_prefixes": ["dk-confluent-dev-position-reader-"]
+    },
+
+    "pomo": {
+      "description": "POMO workload — dev (read-only).",
+      "app_client_id": "87137dbf-e09d-4a4a-8f31-849d0c556834",
+      "read_topic_prefixes": [
         "dev.transaction.oms.",
         "dev2.transaction.oms.",
         "dev.transactionallocation.oms.",
@@ -56,45 +112,21 @@
       ]
     },
 
-    "position-reader": {
-      "description": "Position Service reader — dev.",
-      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-position-reader",
-      "read_topic_prefixes": [
-        "dev.deal.",
-        "dev2.deal.",
-        "dev.security.",
-        "dev2.security.",
-        "dev.manager.",
-        "dev2.manager.",
-        "dev.fund.",
-        "dev2.fund.",
-        "dev.referencedata.",
-        "dev2.referencedata."
-      ],
-      "consumer_group_prefixes": ["dk-confluent-dev-position-reader-"]
-    },
-
-    "tft-writer": {
-      "description": "TFT Service writer — dev.",
-      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-tft-writer",
-      "write_topic_prefixes": [
-        "dev.deal.",
-        "dev2.deal.",
-        "dev.security.",
-        "dev2.security.",
-        "dev.manager.",
-        "dev2.manager.",
-        "dev.fund.",
-        "dev2.fund."
-      ]
-    },
-
-    "ibconnect-connector": {
-      "description": "IB Connect connector — dev.",
-      "app_client_id": "REPLACE_WITH_APP_CLIENT_ID_FOR_dk-confluent-dev-ibconnect-connector",
+    "ibconnect-stream": {
+      "_comment": "PENDING CONFIRMATION: App 'dk-ibconnect-stream-api-nonprod' covers both dev AND uat ibconnect topics. Confirm with DKP how to handle this cross-env app registration.",
+      "description": "IB Connect Stream workload — dev/uat nonprod.",
+      "app_client_id": "20d5ca8e-ce0a-4969-a078-df705d4c1d49",
       "write_topic_prefixes": [
         "dev.ibconnect.streams.avro",
-        "dev.ibconnect.rawstreams.json"
+        "dev.ibconnect.rawstreams.json",
+        "uat.ibconnect.streams.avro",
+        "uat.ibconnect.rawstreams.json"
+      ],
+      "read_topic_prefixes": [
+        "dev.ibconnect.streams.avro",
+        "dev.ibconnect.rawstreams.json",
+        "uat.ibconnect.streams.avro",
+        "uat.ibconnect.rawstreams.json"
       ]
     }
   }
