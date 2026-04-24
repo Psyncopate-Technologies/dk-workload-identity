@@ -1,21 +1,17 @@
 # .github/workflows/
 
-| File | Workflow name | Owner | What it does |
-|---|---|---|---|
-| `terraform-workload.yml`     | `terraform-workload`     | DKP                  | Primary workflow. Applies `terraform/live/<stack>` against **DKP's** Confluent org + Azure subscription. Workload-identity auth (GitHub OIDC → DKP User-Assigned Managed Identity) — no long-lived service-principal password. |
-| `terraform-poc-workload.yml` | `terraform-poc-workload` | Confluent PS (Ayele) | Same code, targeted at Ayele's PoC Confluent org + Azure subscription for pre-delivery validation. DKP can delete this file after hand-off. |
-| `terraform-poc-infra.yml`    | `terraform-poc-infra`    | Confluent PS (Ayele) | Applies the PoC-only Azure network + Confluent env/cluster/PrivateLink (`poc-infra/` tree, not shipped to DKP). |
+| File | Workflow name | What it does |
+|---|---|---|
+| `terraform-workload.yml` | `terraform-workload` | Applies `terraform/live/<stack>` against DKP's Confluent org + Azure subscription. Workload-identity auth (GitHub OIDC → User-Assigned Managed Identity) — no long-lived service-principal password. |
 
-All three workflows:
-- trigger on `workflow_dispatch` (pick `stack` + `action`) and on PRs touching their scope;
-- install pinned CLIs via `./tools/install.sh`;
-- read remote state from Azure Storage via `azurerm` backend, auth via Azure AD.
+The workflow:
+- triggers on `workflow_dispatch` (pick `stack` + `action`) and on PRs touching `terraform/**`, `tools/**`, or itself;
+- installs pinned CLIs via `./tools/install.sh`;
+- reads remote state from Azure Storage via the `azurerm` backend, auth via Azure AD.
 
 ## Repository secrets — name + value
 
 Set at **repo → Settings → Secrets and variables → Actions → Repository secrets**.
-
-### `terraform-workload.yml`
 
 | Name                         | Value                                  | Notes |
 |---|---|---|
@@ -34,14 +30,10 @@ None required. All configuration is passed via the Repository secrets above, plu
 
 ## RBAC the federated identity needs
 
-**DKP UMI** (`principal_id = fa9be012-9716-446d-a384-877cfdbd8773`):
+UMI `principal_id = fa9be012-9716-446d-a384-877cfdbd8773`:
 
 - `Storage Blob Data Contributor` on `saze1devconfluent` (tfstate SA).
 - No Azure resource creation scope needed — the workflow only touches Confluent Cloud + Azure Storage state.
-
-**PS Entra app** (`client_id = f06375c6-…`):
-- `Storage Blob Data Contributor` on `dkconfluentpoctfstate`.
-- `Contributor` on the PoC subscription (`terraform-poc-infra.yml` creates Azure VNets/VMs).
 
 See `CHECKLIST.md` §3 for bootstrap commands.
 
