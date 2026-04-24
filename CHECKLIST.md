@@ -127,17 +127,34 @@ Needed so the `terraform-workload.yml` workflow can:
 
 ---
 
-## 4. GitHub repo secrets
+## 4. GitHub repo secrets & variables
 
-Set these on the DKP repo → Settings → Secrets and variables → Actions:
+Set these on the DKP repo → Settings → Secrets and variables → Actions.
+
+**Secrets:**
 
 | Name | Value |
 |---|---|
-| `AZURE_CLIENT_ID`            | `APP_ID` from step 3 |
-| `AZURE_TENANT_ID`            | DKP Entra tenant: `7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8` |
-| `AZURE_SUBSCRIPTION_ID`      | DKP tfstate subscription |
-| `CONFLUENT_CLOUD_API_KEY`    | Cloud API key with `OrganizationAdmin` in DKP's Confluent org |
-| `CONFLUENT_CLOUD_API_SECRET` | Matching secret |
+| `AZURE_CLIENT_ID`          | UMI / Entra app client ID from step 3 |
+| `AZURE_TENANT_ID`          | DKP Entra tenant: `7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8` |
+| `AZURE_SUBSCRIPTION_ID`    | DKP subscription hosting the tfstate SA + Key Vault |
+| `TG_STATE_STORAGE_ACCOUNT` | tfstate SA name (e.g. `saze1devconfluent`) |
+| `TG_STATE_CONTAINER`       | tfstate container name (e.g. `confluent`) |
+| `TG_STATE_RESOURCE_GROUP`  | tfstate SA resource group |
+
+**Variables** (not sensitive — vault identifiers only):
+
+| Name | Value |
+|---|---|
+| `AZURE_KEY_VAULT_NAME`                | Key Vault holding `confluent-admin-key` + `confluent-admin-secret` |
+| `AZURE_KEY_VAULT_RESOURCE_GROUP_NAME` | Resource group of the Key Vault |
+
+The Confluent admin API key + secret are **not** stored in GitHub. Terraform pulls them from Azure Key Vault at plan/apply time. Ensure DKP pre-populates the two secrets in the vault:
+
+- `confluent-admin-key`    — Cloud API key with `OrganizationAdmin` in DKP's Confluent org
+- `confluent-admin-secret` — matching secret
+
+Grant the UMI `Key Vault Secrets User` (RBAC model) or `Get` on secrets (Access Policy model) on this vault.
 
 Verify by running the workflow with `stack=dev, action=plan` from the Actions tab (see step 7).
 

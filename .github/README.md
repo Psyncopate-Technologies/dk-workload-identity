@@ -19,23 +19,29 @@ Set at **repo → Settings → Secrets and variables → Actions → Repository 
 |---|---|---|
 | `AZURE_CLIENT_ID`            | `6b876d61-66e1-46d9-bb1f-c783d9dc0295` | Client ID of the User-Assigned Managed Identity the runner authenticates as (GitHub OIDC → Azure workload identity federation). |
 | `AZURE_TENANT_ID`            | `7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8` | Entra tenant the UMI and Confluent identity provider live in. |
-| `AZURE_SUBSCRIPTION_ID`      | `e2a01c39-dfaa-40e2-84bc-133e0fa5d21e` | Subscription that hosts the Terraform state storage account. |
-| `CONFLUENT_CLOUD_API_KEY`    | *<ask Rukai>*                          | Confluent Cloud API key with `OrganizationAdmin` role on the Confluent org — lets Terraform create identity providers, pools, and role bindings. |
-| `CONFLUENT_CLOUD_API_SECRET` | *<ask Rukai>*                          | Secret paired with the API key above. |
+| `AZURE_SUBSCRIPTION_ID`      | `e2a01c39-dfaa-40e2-84bc-133e0fa5d21e` | Subscription that hosts the Terraform state storage account and the Confluent admin Key Vault. |
 | `TG_STATE_STORAGE_ACCOUNT`   | `saze1devconfluent`                    | Azure Storage account holding the remote `terraform.tfstate` blobs. |
 | `TG_STATE_CONTAINER`         | `confluent`                            | Blob container inside the storage account where state blobs live. |
 | `TG_STATE_RESOURCE_GROUP`    | *<ask Dov/Willy>*                      | Resource group containing `saze1devconfluent` — needed by the `azurerm` backend to locate the SA. |
 
+The Confluent admin API key + secret are **not** stored in GitHub. Terraform pulls them from Azure Key Vault at plan/apply time from the two secrets `confluent-admin-key` and `confluent-admin-secret` (DKP convention).
+
 ## Repository variables
 
-None required. All configuration is passed via the Repository secrets above, plus workflow-dispatch inputs (`stack`, `action`).
+Set at **repo → Settings → Secrets and variables → Actions → Variables**. Vault identifiers aren't secrets, so they go here rather than in the secrets section.
+
+| Name                                  | Value              | Notes |
+|---|---|---|
+| `AZURE_KEY_VAULT_NAME`                | *<ask Rukai>*      | Key Vault holding the Confluent admin API key + secret (`confluent-admin-key`, `confluent-admin-secret`). |
+| `AZURE_KEY_VAULT_RESOURCE_GROUP_NAME` | *<ask Rukai>*      | Resource group that holds the Key Vault above. |
 
 ## RBAC the federated identity needs
 
 UMI `principal_id = fa9be012-9716-446d-a384-877cfdbd8773`:
 
 - `Storage Blob Data Contributor` on `saze1devconfluent` (tfstate SA).
-- No Azure resource creation scope needed — the workflow only touches Confluent Cloud + Azure Storage state.
+- `Key Vault Secrets User` on the Key Vault named in `AZURE_KEY_VAULT_NAME` — lets Terraform read `confluent-admin-key` + `confluent-admin-secret`. (If DKP uses legacy Access Policies instead of RBAC, grant `Get` on secrets.)
+- No Azure resource creation scope needed — the workflow doesn't create Azure resources.
 
 See `CHECKLIST.md` §3 for bootstrap commands.
 

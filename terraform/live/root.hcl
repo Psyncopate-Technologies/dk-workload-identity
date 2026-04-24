@@ -2,21 +2,41 @@ generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
+# Azure provider — used only to read DKP's Confluent admin API key + secret
+# from Azure Key Vault. Auth to Azure comes from ARM_* env vars set by the
+# GitHub Actions workflow (ARM_USE_OIDC=true) or the local az-cli session.
+provider "azurerm" {
+  features {}
+}
+
+data "azurerm_key_vault" "corp_it" {
+  name                = var.azure_key_vault_name
+  resource_group_name = var.azure_key_vault_resource_group_name
+}
+
+data "azurerm_key_vault_secret" "confluent_admin_key" {
+  name         = "confluent-admin-key"
+  key_vault_id = data.azurerm_key_vault.corp_it.id
+}
+
+data "azurerm_key_vault_secret" "confluent_admin_secret" {
+  name         = "confluent-admin-secret"
+  key_vault_id = data.azurerm_key_vault.corp_it.id
+}
+
 provider "confluent" {
-  cloud_api_key    = var.confluent_cloud_api_key
-  cloud_api_secret = var.confluent_cloud_api_secret
+  cloud_api_key    = data.azurerm_key_vault_secret.confluent_admin_key.value
+  cloud_api_secret = data.azurerm_key_vault_secret.confluent_admin_secret.value
 }
 
-variable "confluent_cloud_api_key" {
-  description = "Confluent Cloud Cloud API Key. Supply via TF_VAR_confluent_cloud_api_key."
+variable "azure_key_vault_name" {
+  description = "Name of the Azure Key Vault that stores the Confluent admin API key + secret. Supply via TF_VAR_azure_key_vault_name."
   type        = string
-  sensitive   = true
 }
 
-variable "confluent_cloud_api_secret" {
-  description = "Confluent Cloud Cloud API Secret. Supply via TF_VAR_confluent_cloud_api_secret."
+variable "azure_key_vault_resource_group_name" {
+  description = "Resource group of the Azure Key Vault above. Supply via TF_VAR_azure_key_vault_resource_group_name."
   type        = string
-  sensitive   = true
 }
 EOF
 }
@@ -28,8 +48,6 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    # Override any of these via env vars before running terragrunt.
-    # Defaults target Ayele's PoC; DK overrides these for their own tenant/account.
     resource_group_name  = get_env("TG_STATE_RESOURCE_GROUP", "rg-dk-confluent-poc-tfstate")
     storage_account_name = get_env("TG_STATE_STORAGE_ACCOUNT", "dkconfluentpoctfstate")
     container_name       = get_env("TG_STATE_CONTAINER", "tfstate")
