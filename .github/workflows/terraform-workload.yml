@@ -80,7 +80,10 @@ jobs:
 
       - name: Install pinned tools
         run: |
-          ./tools/install.sh
+          # Invoked via bash so the exec bit on install.sh isn't required —
+          # file-mode bits get stripped by some copy/zip paths DKP may use
+          # when importing this repo.
+          bash tools/install.sh
           echo "${GITHUB_WORKSPACE}/tools/bin" >> "${GITHUB_PATH}"
 
       - name: Version check

@@ -60,7 +60,7 @@ jobs:
 
       - name: Install pinned tools
         run: |
-          ./tools/install.sh
+          bash tools/install.sh
           echo "${GITHUB_WORKSPACE}/tools/bin" >> "${GITHUB_PATH}"
 
       - name: Version check
