@@ -93,7 +93,7 @@ Both Terragrunt trees use an `azurerm` remote backend:
 | Resource group | `rg-dk-confluent-poc-tfstate` |
 | Storage account | `dkconfluentpoctfstate` |
 | Container | `tfstate` |
-| Key layout | `<tree>/<stack>/terraform.tfstate` (e.g. `poc-infra/azure-network/terraform.tfstate`) |
+| Key layout | `terraform/` tree: `confluent-<ENV>workload-identity.tfstate` (flat, matches DKP's existing naming in the `confluent` container). `poc-infra/` tree: `poc-infra/<stack>/terraform.tfstate` (namespaced). |
 | Auth | Azure AD (`use_azuread_auth = true`). Local runs use the signed-in `az` CLI session; CI uses GitHub OIDC → federated Entra app. |
 
 RBAC: the principal running terragrunt (user locally, federated identity in CI) needs **Storage Blob Data Contributor** on the storage account. Ayele's user is already granted.
