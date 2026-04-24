@@ -82,7 +82,8 @@ jobs:
         run: |
           # Invoked via bash so the exec bit on install.sh isn't required —
           # file-mode bits get stripped by some copy/zip paths DKP may use
-          # when importing this repo.
+          # when importing this repo. Script reads pinned versions from
+          # tools/versions.env and downloads binaries into tools/bin/.
           bash tools/install.sh
           echo "${GITHUB_WORKSPACE}/tools/bin" >> "${GITHUB_PATH}"
 
