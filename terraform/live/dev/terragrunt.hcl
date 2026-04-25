@@ -13,7 +13,8 @@ dependency "provider" {
   mock_outputs = {
     identity_provider_id = "op-mock00"
   }
-  mock_outputs_allowed_terraform_commands = ["plan", "validate"]
+  # init is included so a fresh repo can plan dev/uat/prd before _org is applied.
+  mock_outputs_allowed_terraform_commands = ["init", "plan", "validate"]
 }
 
 # Workloads + topic/group access lists live in workloads.json next to this file.
