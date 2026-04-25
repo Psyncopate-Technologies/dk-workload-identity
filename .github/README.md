@@ -22,7 +22,7 @@ Set at **repo → Settings → Secrets and variables → Actions → Repository 
 | `AZURE_SUBSCRIPTION_ID`      | `e2a01c39-dfaa-40e2-84bc-133e0fa5d21e` | Subscription that hosts the Terraform state storage account and the Confluent admin Key Vault. |
 | `TG_STATE_STORAGE_ACCOUNT`   | `saze1devconfluent`                    | Azure Storage account holding the remote `terraform.tfstate` blobs. |
 | `TG_STATE_CONTAINER`         | `confluent`                            | Blob container inside the storage account where state blobs live. |
-| `TG_STATE_RESOURCE_GROUP`    | *<ask Dov/Willy>*                      | Resource group containing `saze1devconfluent` — needed by the `azurerm` backend to locate the SA. |
+| `TG_STATE_RESOURCE_GROUP`    | `RG-ze1-DEV-Engineering-confluent`     | Resource group containing `saze1devconfluent` — needed by the `azurerm` backend to locate the SA. |
 
 The Confluent admin API key + secret are **not** stored in GitHub. Terraform pulls them from Azure Key Vault at plan/apply time from the two secrets `confluent-admin-key` and `confluent-admin-secret` (DKP convention).
 
@@ -32,8 +32,8 @@ Set at **repo → Settings → Secrets and variables → Actions → Variables**
 
 | Name                                  | Value              | Notes |
 |---|---|---|
-| `AZURE_KEY_VAULT_NAME`                | *<ask Rukai>*      | Key Vault holding the Confluent admin API key + secret (`confluent-admin-key`, `confluent-admin-secret`). |
-| `AZURE_KEY_VAULT_RESOURCE_GROUP_NAME` | *<ask Rukai>*      | Resource group that holds the Key Vault above. |
+| `AZURE_KEY_VAULT_NAME`                | `kv-ze1-dev-confluent-gm6` | Key Vault holding the Confluent admin API key + secret (`confluent-admin-key`, `confluent-admin-secret`). |
+| `AZURE_KEY_VAULT_RESOURCE_GROUP_NAME` | *<confirm with Rukai>*     | Resource group that holds the Key Vault above. Likely `RG-ze1-DEV-Engineering-confluent` (same RG as the tfstate SA); verify with `az keyvault show --name kv-ze1-dev-confluent-gm6 --query resourceGroup -o tsv`. |
 
 ## RBAC the federated identity needs
 
