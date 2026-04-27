@@ -4,9 +4,10 @@
 
 .DESCRIPTION
     Reads a workloads config, looks up the live app registrations in Entra,
-    and emits a JSON object mapping workload_key -> app_client_id. The output
-    can be piped straight into a terragrunt tfvars file or rendered into the
-    'workloads' map by hand.
+    and emits a JSON object mapping workload_key -> app_client_ids (single-element
+    list — Terraform's pool filter OR's multiple aud values, so the schema is
+    always a list). The output can be piped straight into a terragrunt tfvars
+    file or rendered into the 'workloads' map by hand.
 
 .PARAMETER ConfigPath
     Path to the workloads JSON config.
@@ -52,7 +53,7 @@ foreach ($entry in $cfg.workloads.PSObject.Properties) {
     }
 
     $out.workloads[$workloadKey] = [ordered]@{
-        app_client_id  = $app.AppId
+        app_client_ids = @($app.AppId)
         object_id      = $app.Id
         display_name   = $app.DisplayName
         identifier_uri = ($app.IdentifierUris | Select-Object -First 1)

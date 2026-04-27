@@ -7,8 +7,9 @@
     scope, federated credentials) are added in place.
 
     The output of this script feeds directly into the Terraform 'workloads' map:
-    copy the printed appId into the 'app_client_id' field of the corresponding workload
-    in terraform/live/<env>/terragrunt.hcl.
+    copy the printed appId into the 'app_client_ids' list of the corresponding workload
+    in terraform/live/<env>/workloads.json (the field is a list — wrap a single value as
+    ["<appId>"]; add more entries to share one pool across multiple Entra apps).
 
 .PARAMETER ConfigPath
     Path to the workloads JSON config (see powershell/config/workloads.example.json).
@@ -83,6 +84,7 @@ foreach ($entry in $cfg.workloads.PSObject.Properties) {
         object_id      = $app.Id
         identifier_uri = "api://$($app.AppId)"
     }
+    # Display column kept singular for table readability; the Terraform field is a list.
 }
 
 Write-Host ""
@@ -90,7 +92,7 @@ Write-Host "=== Summary ===" -ForegroundColor Cyan
 $results | Format-Table -AutoSize
 
 Write-Host ""
-Write-Host "Paste these appIds into terraform/live/$($cfg.environment)/terragrunt.hcl:" -ForegroundColor Cyan
+Write-Host "Paste these appIds into terraform/live/$($cfg.environment)/workloads.json:" -ForegroundColor Cyan
 foreach ($r in $results) {
-    Write-Host "  workloads[`"$($r.workload)`"].app_client_id = `"$($r.app_client_id)`""
+    Write-Host "  workloads[`"$($r.workload)`"].app_client_ids = [`"$($r.app_client_id)`"]"
 }

@@ -2,7 +2,7 @@
   "_comment": "Dev-env workloads + Kafka access. Maps topic allocations from Rukai's topic list. The dev logical env covers dev.* and dev2.* topic prefixes in DKP's Kafka.",
   "_confirm_before_apply": [
     "confluent_organization_id — DKP hasn't been provided; ask DKP team.",
-    "app_client_id for each workload — set after the Entra admin runs the runbook.",
+    "app_client_ids for each workload — set after the Entra admin runs the runbook. List form so multiple Entra apps can share one pool (OR'd in the filter).",
     "ibconnect topics listed as 'prefix' by Rukai but have no trailing dot; confirm prefix vs exact-match intent with DKP.",
     "ibconnect-stream: App registration 'dk-ibconnect-stream-api-nonprod' covers both dev AND uat topics. Confirm if this workload should stay here or be handled separately."
   ],
@@ -15,7 +15,7 @@
   "workloads": {
     "mergerarb-madam": {
       "description": "Merger-Arb MADAM workload — dev (exact-match topics).",
-      "app_client_id": "0dcd6973-2175-4c93-9c10-bcdba0df9065",
+      "app_client_ids": ["0dcd6973-2175-4c93-9c10-bcdba0df9065"],
       "write_topic_names": [
         "dev.deal.calc.mergerarb.json",
         "dev.deal.mergerarb.compact.json",
@@ -41,7 +41,7 @@
 
     "position-edp": {
       "description": "Position EDP workload — dev (merged writer + reader).",
-      "app_client_id": "78b7d7a7-aaf5-49f9-af83-02e6a1c263e0",
+      "app_client_ids": ["78b7d7a7-aaf5-49f9-af83-02e6a1c263e0"],
       "write_topic_prefixes": [
         "dev.transaction.oms.",
         "dev2.transaction.oms.",
@@ -80,7 +80,7 @@
 
     "tft-reference-data": {
       "description": "TFT Reference Data workload — dev.",
-      "app_client_id": "e01934f5-9ab1-4bc9-983f-36fc816555c8",
+      "app_client_ids": ["e01934f5-9ab1-4bc9-983f-36fc816555c8"],
       "write_topic_prefixes": [
         "dev.deal.",
         "dev2.deal.",
@@ -96,7 +96,7 @@
 
     "pomo": {
       "description": "POMO workload — dev (read-only).",
-      "app_client_id": "87137dbf-e09d-4a4a-8f31-849d0c556834",
+      "app_client_ids": ["87137dbf-e09d-4a4a-8f31-849d0c556834"],
       "read_topic_prefixes": [
         "dev.transaction.oms.",
         "dev2.transaction.oms.",
@@ -115,7 +115,7 @@
     "ibconnect-stream": {
       "_comment": "PENDING CONFIRMATION: App 'dk-ibconnect-stream-api-nonprod' covers both dev AND uat ibconnect topics. Confirm with DKP how to handle this cross-env app registration.",
       "description": "IB Connect Stream workload — dev/uat nonprod.",
-      "app_client_id": "20d5ca8e-ce0a-4969-a078-df705d4c1d49",
+      "app_client_ids": ["20d5ca8e-ce0a-4969-a078-df705d4c1d49"],
       "write_topic_prefixes": [
         "dev.ibconnect.streams.avro",
         "dev.ibconnect.rawstreams.json",

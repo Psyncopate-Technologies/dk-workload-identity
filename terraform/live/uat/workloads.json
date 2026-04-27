@@ -2,7 +2,7 @@
   "_comment": "UAT-env workloads + Kafka access. Maps topic allocations from Rukai's topic list. The uat logical env covers uat.* and uat2.* topic prefixes in DKP's Kafka, plus cdc.uat.position.* for the reader. Same cluster as dev (nonprod) — identity pools are separated by name.",
   "_confirm_before_apply": [
     "confluent_organization_id — DKP hasn't been provided; ask DKP team.",
-    "app_client_id for each workload — set after the Entra admin runs the runbook.",
+    "app_client_ids for each workload — set after the Entra admin runs the runbook. List form so multiple Entra apps can share one pool (OR'd in the filter).",
     "ibconnect topics listed as 'prefix' by Rukai but have no trailing dot; confirm prefix vs exact-match intent with DKP.",
     "ibconnect: UAT ibconnect topics are handled by dev's 'dk-ibconnect-stream-api-nonprod' app registration (cross-env). No separate UAT ibconnect workload needed."
   ],
@@ -15,7 +15,7 @@
   "workloads": {
     "mergerarb-madam": {
       "description": "Merger-Arb MADAM workload — uat (exact-match topics).",
-      "app_client_id": "e6b26ab5-d4d9-4c6c-83e0-3523bd83755a",
+      "app_client_ids": ["e6b26ab5-d4d9-4c6c-83e0-3523bd83755a"],
       "write_topic_names": [
         "uat.deal.calc.mergerarb.json",
         "uat.deal.mergerarb.compact.json",
@@ -41,7 +41,7 @@
 
     "position-edp": {
       "description": "Position EDP workload — uat (merged writer + reader).",
-      "app_client_id": "cc41df0e-00ea-4ad0-914b-3a9dc87f5d65",
+      "app_client_ids": ["cc41df0e-00ea-4ad0-914b-3a9dc87f5d65"],
       "write_topic_prefixes": [
         "uat.transaction.oms.",
         "uat2.transaction.oms.",
@@ -81,7 +81,7 @@
 
     "tft-reference-data": {
       "description": "TFT Reference Data workload — uat.",
-      "app_client_id": "7bdadafc-7eb3-4da6-a5c7-49fd4a29996e",
+      "app_client_ids": ["7bdadafc-7eb3-4da6-a5c7-49fd4a29996e"],
       "write_topic_prefixes": [
         "uat.deal.",
         "uat2.deal.",
@@ -97,7 +97,7 @@
 
     "pomo": {
       "description": "POMO workload — uat (read-only).",
-      "app_client_id": "e8100861-832a-418c-a8ee-40513f4d70d9",
+      "app_client_ids": ["e8100861-832a-418c-a8ee-40513f4d70d9"],
       "read_topic_prefixes": [
         "uat.transaction.oms.",
         "uat2.transaction.oms.",

@@ -44,7 +44,10 @@ Map of workloads to create pools for. Key is {domain}-{workload}, combined with 
 to produce the display name (e.g. 'mergerarb-madam' under env 'dev' becomes 'dk-confluent-dev-mergerarb-madam').
 
 Each workload:
-  app_client_id          - Entra app registration (client) ID. Used to build the aud filter.
+  app_client_ids         - List of Entra app registration (client) IDs that route into this pool.
+                           Combined with OR in the pool filter so multiple Entra apps can share
+                           one logical workload identity (e.g. one app per region or per service
+                           that all need the same Kafka access). Must be non-empty.
   description            - Optional description shown in the Confluent Console.
 
 Topic / group access lists — use *_prefixes for prefix-match resources (CRN topic=<prefix>*),
@@ -61,7 +64,7 @@ that don't apply.
   consumer_group_names    - Exact-match consumer groups granted DeveloperRead.
 EOT
   type = map(object({
-    app_client_id           = string
+    app_client_ids          = list(string)
     description             = optional(string)
     write_topic_prefixes    = optional(list(string), [])
     write_topic_names       = optional(list(string), [])
@@ -73,4 +76,9 @@ EOT
     consumer_group_names    = optional(list(string), [])
   }))
   default = {}
+
+  validation {
+    condition     = alltrue([for wl in var.workloads : length(wl.app_client_ids) > 0])
+    error_message = "Each workload must declare at least one app_client_ids entry."
+  }
 }

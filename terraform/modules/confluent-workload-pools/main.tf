@@ -84,7 +84,8 @@ resource "confluent_identity_pool" "workload" {
 
   # v2 Entra tokens (requestedAccessTokenVersion=2) emit aud as the client ID GUID,
   # not the Application ID URI. The runbook / PowerShell sets v2 on every app we create.
-  filter = "claims.tid == \"${var.entra_tenant_id}\" && claims.aud == \"${each.value.app_client_id}\""
+  # CEL `in` lets several Entra apps share one pool by listing each app's client ID.
+  filter = "claims.tid == \"${var.entra_tenant_id}\" && claims.aud in [${join(", ", [for id in each.value.app_client_ids : "\"${id}\""])}]"
 }
 
 resource "confluent_role_binding" "workload" {

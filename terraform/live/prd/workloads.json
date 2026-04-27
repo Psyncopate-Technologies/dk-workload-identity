@@ -2,7 +2,7 @@
   "_comment": "PRD-env workloads + Kafka access. Topic prefixes use 'prod.' and 'prod2.' (not 'prd.'). Red-marked rows (mergerarb-madam, ibconnect-stream) are excluded — pending app registrations.",
   "_confirm_before_apply": [
     "confluent_organization_id — ask DKP team.",
-    "app_client_id for each workload — set after the Entra admin runs the runbook.",
+    "app_client_ids for each workload — set after the Entra admin runs the runbook. List form so multiple Entra apps can share one pool (OR'd in the filter).",
     "prd topic prefixes (prd.*, prd2.*?) and exact-match lists — ask Rukai for the prd topic catalog.",
     "mergerarb-madam: App registration pending (red row) — add when ready.",
     "ibconnect-stream: App registration pending (red row) — add when ready."
@@ -16,7 +16,7 @@
   "workloads": {
     "position-edp": {
       "description": "Position EDP workload — prd (merged writer + reader).",
-      "app_client_id": "0c2cc302-34dc-4dac-94d8-34ae871d7d50",
+      "app_client_ids": ["0c2cc302-34dc-4dac-94d8-34ae871d7d50"],
       "write_topic_prefixes": [
         "prod.transaction.oms.",
         "prod2.transaction.oms.",
@@ -56,7 +56,7 @@
 
     "tft-reference-data": {
       "description": "TFT Reference Data workload — prd.",
-      "app_client_id": "0c1fea5e-0be7-4f9a-b4af-c963b555db94",
+      "app_client_ids": ["0c1fea5e-0be7-4f9a-b4af-c963b555db94"],
       "write_topic_prefixes": [
         "prod.deal.",
         "prod2.deal.",
@@ -71,7 +71,7 @@
 
     "pomo": {
       "description": "POMO workload — prd (read-only).",
-      "app_client_id": "140569ad-f182-4d5a-9631-8e73d8fda15d",
+      "app_client_ids": ["140569ad-f182-4d5a-9631-8e73d8fda15d"],
       "read_topic_prefixes": [
         "prod.transaction.oms.",
         "prod2.transaction.oms.",
