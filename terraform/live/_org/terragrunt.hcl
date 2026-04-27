@@ -14,7 +14,7 @@ terraform {
 }
 
 inputs = {
-  display_name    = "DK Entra ID - TF Managed"
+  display_name    = "DK Entra ID"
   description     = "Microsoft Entra ID OIDC provider — managed by terraform/live/_org. Singleton at the Confluent organization level."
   entra_tenant_id = "7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8"
 }
