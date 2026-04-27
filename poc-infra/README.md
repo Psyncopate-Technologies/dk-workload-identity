@@ -35,7 +35,7 @@ Environment variables (via `.env` at the repo root):
 |---|---|
 | `TF_VAR_confluent_cloud_api_key` / `TF_VAR_confluent_cloud_api_secret` | `/Users/ayeleadmassu/Documents/Confluent-PS/DKP/engagment-2/Day-2/credentials/` |
 | `TF_VAR_azure_subscription_id` | Azure portal — pick the subscription to land the VNets in |
-| `TF_VAR_azure_tenant_id` | `1b9dca15-4db4-4905-8725-d318d11c6875` |
+| `TF_VAR_azure_tenant_id` | `7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8` |
 
 Plus: `az login` in the current shell (Terraform's AzureRM provider picks up the CLI session).
 

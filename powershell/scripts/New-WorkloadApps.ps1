@@ -14,7 +14,7 @@
     Path to the workloads JSON config (see powershell/config/workloads.example.json).
 
 .EXAMPLE
-    Connect-MgGraph -TenantId 1b9dca15-4db4-4905-8725-d318d11c6875 -Scopes "Application.ReadWrite.All"
+    Connect-MgGraph -TenantId 7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8 -Scopes "Application.ReadWrite.All"
     ./powershell/scripts/New-WorkloadApps.ps1 -ConfigPath ./powershell/config/workloads.dev.json
 #>
 [CmdletBinding(SupportsShouldProcess)]

@@ -72,7 +72,7 @@ PoC Azure/Confluent resources use prefix `dk-confluent-poc` to stay clearly sepa
 - **Pipeline runs** use **GitHub Actions repo secrets**. Whenever I introduce a new secret, I will **explicitly call out** the secret name to create in GitHub → Settings → Secrets and variables → Actions before the pipeline will work.
 - **GitHub repo secrets (both workflows):**
   - `AZURE_CLIENT_ID` = `f06375c6-df02-4309-9588-3c1ae9d2c404` (Entra app `dk-confluent-poc-gh-actions`)
-  - `AZURE_TENANT_ID` = `1b9dca15-4db4-4905-8725-d318d11c6875`
+  - `AZURE_TENANT_ID` = `7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8`
   - `AZURE_SUBSCRIPTION_ID` = `e2fc4b68-6dd0-4c89-99c6-d6b16f9a0eba`
   - `CONFLUENT_CLOUD_API_KEY` = Org key from `Day-2/credentials/api-keys.env`
   - `CONFLUENT_CLOUD_API_SECRET` = matching secret
@@ -80,7 +80,7 @@ PoC Azure/Confluent resources use prefix `dk-confluent-poc` to stay clearly sepa
 - **RBAC already granted** to the app's service principal: `Storage Blob Data Contributor` on the tfstate SA, `Contributor` on the PoC subscription.
 - **Development credentials** (Confluent Cloud Org + cluster admin keys) live at:
   `/Users/ayeleadmassu/Documents/Confluent-PS/DKP/engagment-2/Day-2/credentials`
-- **Azure Tenant ID** (Ayele's dev tenant): `1b9dca15-4db4-4905-8725-d318d11c6875`.
+- **Azure Tenant ID** (Ayele's dev tenant): `7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8`.
 - **Azure Subscription ID** (PoC — where `poc-infra/` lands): `e2fc4b68-6dd0-4c89-99c6-d6b16f9a0eba`.
   Ayele logs into Azure via browser; Terraform/PowerShell picks up the CLI session. Do not ask for or store Azure credentials.
 

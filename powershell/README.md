@@ -43,7 +43,7 @@ powershell/
 ## Connecting
 
 ```powershell
-Connect-MgGraph -TenantId 1b9dca15-4db4-4905-8725-d318d11c6875 `
+Connect-MgGraph -TenantId 7bab0bc1-bb61-48d7-b2d4-79825c2ac6b8 `
                 -Scopes "Application.ReadWrite.All"
 ```
 
