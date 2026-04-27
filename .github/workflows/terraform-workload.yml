@@ -96,13 +96,16 @@ jobs:
 
       - name: Terragrunt init
         working-directory: terraform/live/${{ env.TARGET_STACK }}
-        run: terragrunt init -input=false
+        run: terragrunt init -input=false --terragrunt-non-interactive
 
       - name: Terragrunt ${{ env.TG_ACTION }}
         working-directory: terraform/live/${{ env.TARGET_STACK }}
+        # --terragrunt-non-interactive suppresses Terragrunt's own confirmation
+        # prompts (e.g. the dependent-modules warning on destroy), separate from
+        # Terraform's -auto-approve.
         run: |
           case "${TG_ACTION}" in
-            plan)    terragrunt plan    -input=false ;;
-            apply)   terragrunt apply   -input=false -auto-approve ;;
-            destroy) terragrunt destroy -input=false -auto-approve ;;
+            plan)    terragrunt plan    -input=false --terragrunt-non-interactive ;;
+            apply)   terragrunt apply   -input=false -auto-approve --terragrunt-non-interactive ;;
+            destroy) terragrunt destroy -input=false -auto-approve --terragrunt-non-interactive ;;
           esac
